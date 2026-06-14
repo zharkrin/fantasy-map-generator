@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Mapas Fantásticos</title>
+
+    <link rel="stylesheet" href="frontend/css/main.css">
+</head>
+<body>
+
+    <aside id="panel-lateral">
+
+        <h1>Generador de Mapas</h1>
+
+        <section class="bloque">
+
+            <h2>Nuevo Mundo</h2>
+
+            <label for="sliderEscala">
+                Tamaño del Mundo
+            </label>
+
+            <div class="control-escala">
+
+                <input
+                    id="sliderEscala"
+                    type="range"
+                    min="1"
+                    max="10"
+                    value="1"
+                >
+
+                <input
+                    id="inputEscala"
+                    type="number"
+                    min="1"
+                    max="10"
+                    value="1"
+                >
+
+            </div>
+
+            <p id="textoEscala">
+                Escala: 1x Tierra
+            </p>
+
+            <div id="infoEscala">
+
+            </div>
+
+            <button id="btnCrearMundo">
+                Crear Mundo
+            </button>
+
+        </section>
+
+    </aside>
+
+    <main id="contenedor-mapa">
+
+        <canvas id="canvasMapa"></canvas>
+
+    </main>
+
+    <script type="module" src="frontend/js/main.js"></script>
+
+</body>
+</html>
