@@ -1,75 +1,159 @@
 *{
+
     margin:0;
     padding:0;
     box-sizing:border-box;
+
+}
+
+:root{
+
+    --fondo:#1d2026;
+    --panel:#2b3038;
+    --panelClaro:#383f49;
+
+    --texto:#f5f5f5;
+    --textoSecundario:#b9bcc4;
+
+    --borde:#4a515c;
+
+    --boton:#4c82ff;
+    --botonHover:#6795ff;
+
 }
 
 body{
+
     display:flex;
+
+    width:100vw;
     height:100vh;
+
     overflow:hidden;
 
-    font-family:Arial, Helvetica, sans-serif;
+    background:var(--fondo);
 
-    background:#20252b;
-    color:white;
+    color:var(--texto);
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
 }
 
-#panel-lateral{
-    width:320px;
+/* ---------------------------- */
 
-    background:#2d343d;
+#panelLateral{
+
+    width:340px;
+
+    min-width:340px;
+
+    background:var(--panel);
+
+    border-right:1px solid var(--borde);
 
     padding:20px;
 
     overflow-y:auto;
 
-    border-right:1px solid #444;
 }
 
-#panel-lateral h1{
-    margin-bottom:20px;
-}
+/* ---------------------------- */
 
-.bloque{
+header{
+
     margin-bottom:25px;
+
 }
 
-.bloque h2{
-    margin-bottom:15px;
+header h1{
+
+    font-size:28px;
+
+    margin-bottom:10px;
+
 }
 
-.control-escala{
+header p{
+
+    color:var(--textoSecundario);
+
+    line-height:1.5;
+
+}
+
+/* ---------------------------- */
+
+.panel{
+
     display:flex;
+
+    flex-direction:column;
+
+    gap:15px;
+
+}
+
+.panel h2{
+
+    margin-bottom:5px;
+
+}
+
+label{
+
+    font-size:14px;
+
+    color:var(--textoSecundario);
+
+}
+
+/* ---------------------------- */
+
+.fila{
+
+    display:flex;
+
     gap:10px;
-    margin-top:10px;
+
 }
 
-#sliderEscala{
+/* ---------------------------- */
+
+input[type="number"]{
+
+    width:80px;
+
+}
+
+input[type="number"],
+input[type="text"]{
+
+    background:var(--panelClaro);
+
+    color:white;
+
+    border:1px solid var(--borde);
+
+    border-radius:6px;
+
+    padding:10px;
+
+}
+
+/* ---------------------------- */
+
+input[type="range"]{
+
     flex:1;
+
 }
 
-#inputEscala{
-    width:60px;
-}
-
-#textoEscala{
-    margin-top:10px;
-    font-weight:bold;
-}
-
-#infoEscala{
-    margin-top:15px;
-
-    line-height:1.6;
-}
+/* ---------------------------- */
 
 button{
-    margin-top:20px;
-
-    width:100%;
-
-    padding:12px;
 
     cursor:pointer;
 
@@ -77,19 +161,108 @@ button{
 
     border-radius:6px;
 
+    background:var(--boton);
+
+    color:white;
+
+    padding:12px;
+
+    transition:0.25s;
+
     font-size:15px;
+
 }
 
-#contenedor-mapa{
+button:hover{
+
+    background:var(--botonHover);
+
+}
+
+/* ---------------------------- */
+
+#btnSemilla{
+
+    width:55px;
+
+    padding:0;
+
+    font-size:20px;
+
+}
+
+/* ---------------------------- */
+
+#informacionEscala{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:10px;
+
+    margin-top:10px;
+
+}
+
+.dato{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    background:var(--panelClaro);
+
+    border-radius:6px;
+
+    padding:10px 12px;
+
+}
+
+.dato span{
+
+    color:var(--textoSecundario);
+
+}
+
+/* ---------------------------- */
+
+#btnCrearMundo{
+
+    margin-top:10px;
+
+    padding:14px;
+
+    font-size:16px;
+
+    font-weight:bold;
+
+}
+
+/* ---------------------------- */
+
+#visorMapa{
+
     flex:1;
 
     position:relative;
 
-    background:#1a1d22;
+    overflow:hidden;
+
+    background:#20242b;
+
 }
 
+/* ---------------------------- */
+
 #canvasMapa{
+
     width:100%;
+
     height:100%;
+
     display:block;
+
+    background:#20242b;
+
 }
