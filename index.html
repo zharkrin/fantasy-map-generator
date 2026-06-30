@@ -1,69 +1,154 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
     <title>Generador de Mapas Fantásticos</title>
 
-    <link rel="stylesheet" href="frontend/css/main.css">
+    <link rel="stylesheet"
+          href="frontend/css/main.css">
+
 </head>
+
 <body>
 
-    <aside id="panel-lateral">
+    <aside id="panelLateral">
 
-        <h1>Generador de Mapas</h1>
+        <header>
 
-        <section class="bloque">
+            <h1>Generador de Mapas</h1>
+
+            <p>
+                Crea mundos fantásticos de forma procedural.
+            </p>
+
+        </header>
+
+        <section class="panel">
 
             <h2>Nuevo Mundo</h2>
 
-            <label for="sliderEscala">
-                Tamaño del Mundo
+            <label for="inputSemilla">
+
+                Semilla
+
             </label>
 
-            <div class="control-escala">
+            <div class="fila">
+
+                <input
+                    id="inputSemilla"
+                    type="number"
+                    placeholder="Aleatoria">
+
+                <button
+                    id="btnSemilla"
+                    title="Generar semilla">
+
+                    🎲
+
+                </button>
+
+            </div>
+
+            <label for="sliderEscala">
+
+                Tamaño del Mundo
+
+            </label>
+
+            <div class="fila">
 
                 <input
                     id="sliderEscala"
                     type="range"
                     min="1"
                     max="10"
-                    value="1"
-                >
+                    value="1">
 
                 <input
                     id="inputEscala"
                     type="number"
                     min="1"
                     max="10"
-                    value="1"
-                >
+                    value="1">
 
             </div>
 
-            <p id="textoEscala">
-                Escala: 1x Tierra
-            </p>
+            <div id="informacionEscala">
 
-            <div id="infoEscala">
+                <div class="dato">
+
+                    <span>Escala</span>
+
+                    <strong>1x Tierra</strong>
+
+                </div>
+
+                <div class="dato">
+
+                    <span>Tamaño</span>
+
+                    <strong>4096 × 2048</strong>
+
+                </div>
+
+                <div class="dato">
+
+                    <span>Continentes</span>
+
+                    <strong>1 - 3</strong>
+
+                </div>
+
+                <div class="dato">
+
+                    <span>Islas</span>
+
+                    <strong>10 - 30</strong>
+
+                </div>
+
+                <div class="dato">
+
+                    <span>Ríos</span>
+
+                    <strong>20 - 80</strong>
+
+                </div>
 
             </div>
 
             <button id="btnCrearMundo">
+
                 Crear Mundo
+
             </button>
 
         </section>
 
     </aside>
 
-    <main id="contenedor-mapa">
+    <main id="visorMapa">
 
-        <canvas id="canvasMapa"></canvas>
+        <canvas id="canvasMapa">
+
+            Tu navegador no soporta Canvas.
+
+        </canvas>
 
     </main>
 
-    <script type="module" src="frontend/js/main.js"></script>
+    <script
+        type="module"
+        src="frontend/js/main.js">
+    </script>
 
 </body>
+
 </html>
