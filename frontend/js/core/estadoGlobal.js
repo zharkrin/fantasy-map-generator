@@ -4,34 +4,39 @@
  * Estado Global
  * ==========================================================
  *
- * ESTE ARCHIVO NUNCA GUARDARÁ DATOS.
- *
- * Únicamente une todos los módulos
- * del estado del proyecto.
- *
+ * Este archivo únicamente reúne todos los módulos de estado.
+ * Nunca almacenará datos propios.
  * ==========================================================
  */
 
 import { mundo } from "./estado/mundo.js";
-
 import { terreno } from "./estado/terreno.js";
+import { rios } from "./estado/rios.js";
+import { lagos } from "./estado/lagos.js";
+import { oceanos } from "./estado/oceanos.js";
 
 export const estadoGlobal = {
 
     /*
-    ==========================================
-    Información general
-    ==========================================
+    ==========================================================
+    Información del mundo
+    ==========================================================
     */
 
     mundo,
 
     /*
-    ==========================================
+    ==========================================================
     Sistemas
-    ==========================================
+    ==========================================================
     */
 
-    terreno
+    terreno,
+
+    rios,
+
+    lagos,
+
+    oceanos
 
 };
