@@ -1,93 +1,527 @@
-export const CONFIG_ESCALAS = {
+/**
+ * ==========================================================
+ * Generador de Mapas Fantásticos
+ * Archivo: frontend/js/core/config.js
+ * ----------------------------------------------------------
+ * Configuración global del proyecto.
+ * Todas las constantes generales deben declararse aquí.
+ * ==========================================================
+ */
 
-    1:{
-        ancho:4096,
-        alto:2048,
-        continentes:"1 - 3",
-        islas:"10 - 30",
-        rios:"20 - 80",
-        naciones:"5 - 20"
+export const CONFIG = {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Información del proyecto
+    |--------------------------------------------------------------------------
+    */
+
+    proyecto: {
+
+        nombre: "Generador de Mapas Fantásticos",
+
+        version: "0.1.0",
+
+        autor: "Asmodeus"
+
     },
 
-    2:{
-        ancho:8192,
-        alto:4096,
-        continentes:"2 - 5",
-        islas:"20 - 60",
-        rios:"50 - 150",
-        naciones:"10 - 40"
+    /*
+    |--------------------------------------------------------------------------
+    | Mundo
+    |--------------------------------------------------------------------------
+    */
+
+    mundo: {
+
+        escalaMinima: 1,
+
+        escalaMaxima: 10,
+
+        escalaPorDefecto: 1,
+
+        semillaMinima: 1,
+
+        semillaMaxima: 999999999
+
     },
 
-    3:{
-        ancho:12288,
-        alto:6144,
-        continentes:"3 - 7",
-        islas:"30 - 90",
-        rios:"100 - 250",
-        naciones:"20 - 60"
+    /*
+    |--------------------------------------------------------------------------
+    | Canvas
+    |--------------------------------------------------------------------------
+    */
+
+    canvas: {
+
+        colorFondo: "#20242b",
+
+        mostrarCuadricula: false,
+
+        colorCuadricula: "#2d3138",
+
+        tamañoCuadricula: 64
+
     },
 
-    4:{
-        ancho:16384,
-        alto:8192,
-        continentes:"4 - 9",
-        islas:"40 - 120",
-        rios:"150 - 350",
-        naciones:"30 - 80"
-    },
+    /*
+    |--------------------------------------------------------------------------
+    | Cámara
+    |--------------------------------------------------------------------------
+    */
 
-    5:{
-        ancho:20480,
-        alto:10240,
-        continentes:"5 - 12",
-        islas:"50 - 150",
-        rios:"250 - 500",
-        naciones:"40 - 120"
-    },
+    camara: {
 
-    6:{
-        ancho:24576,
-        alto:12288,
-        continentes:"6 - 14",
-        islas:"70 - 180",
-        rios:"350 - 700",
-        naciones:"60 - 160"
-    },
+        zoomMinimo: 0.25,
 
-    7:{
-        ancho:28672,
-        alto:14336,
-        continentes:"7 - 16",
-        islas:"90 - 220",
-        rios:"500 - 900",
-        naciones:"80 - 220"
-    },
+        zoomMaximo: 8,
 
-    8:{
-        ancho:32768,
-        alto:16384,
-        continentes:"8 - 18",
-        islas:"110 - 260",
-        rios:"700 - 1100",
-        naciones:"120 - 300"
-    },
+        zoomInicial: 1,
 
-    9:{
-        ancho:36864,
-        alto:18432,
-        continentes:"9 - 20",
-        islas:"130 - 300",
-        rios:"900 - 1400",
-        naciones:"160 - 400"
-    },
+        velocidadZoom: 0.1
 
-    10:{
-        ancho:40960,
-        alto:20480,
-        continentes:"10 - 25",
-        islas:"150 - 400",
-        rios:"1200 - 1800",
-        naciones:"200 - 500"
     }
 
 };
+
+/**
+ * ==========================================================
+ * Configuración de cada escala mundial.
+ * ==========================================================
+ */
+
+export const ESCALAS = {
+
+    1: {
+
+        nombre: "1x Tierra",
+
+        ancho: 4096,
+
+        alto: 2048,
+
+        continentes: {
+
+            minimo: 1,
+
+            maximo: 3
+
+        },
+
+        islas: {
+
+            minimo: 10,
+
+            maximo: 30
+
+        },
+
+        rios: {
+
+            minimo: 20,
+
+            maximo: 80
+
+        },
+
+        naciones: {
+
+            minimo: 5,
+
+            maximo: 20
+
+        }
+
+    },
+
+    2: {
+
+        nombre: "2x Tierra",
+
+        ancho: 8192,
+
+        alto: 4096,
+
+        continentes: {
+
+            minimo: 2,
+
+            maximo: 5
+
+        },
+
+        islas: {
+
+            minimo: 20,
+
+            maximo: 60
+
+        },
+
+        rios: {
+
+            minimo: 50,
+
+            maximo: 150
+
+        },
+
+        naciones: {
+
+            minimo: 10,
+
+            maximo: 40
+
+        }
+
+    },
+
+    3: {
+
+        nombre: "3x Tierra",
+
+        ancho: 12288,
+
+        alto: 6144,
+
+        continentes: {
+
+            minimo: 3,
+
+            maximo: 7
+
+        },
+
+        islas: {
+
+            minimo: 30,
+
+            maximo: 90
+
+        },
+
+        rios: {
+
+            minimo: 100,
+
+            maximo: 250
+
+        },
+
+        naciones: {
+
+            minimo: 20,
+
+            maximo: 60
+
+        }
+
+    },
+
+    4: {
+
+        nombre: "4x Tierra",
+
+        ancho: 16384,
+
+        alto: 8192,
+
+        continentes: {
+
+            minimo: 4,
+
+            maximo: 9
+
+        },
+
+        islas: {
+
+            minimo: 40,
+
+            maximo: 120
+
+        },
+
+        rios: {
+
+            minimo: 150,
+
+            maximo: 350
+
+        },
+
+        naciones: {
+
+            minimo: 30,
+
+            maximo: 80
+
+        }
+
+    },
+
+    5: {
+
+        nombre: "5x Tierra",
+
+        ancho: 20480,
+
+        alto: 10240,
+
+        continentes: {
+
+            minimo: 5,
+
+            maximo: 12
+
+        },
+
+        islas: {
+
+            minimo: 50,
+
+            maximo: 150
+
+        },
+
+        rios: {
+
+            minimo: 250,
+
+            maximo: 500
+
+        },
+
+        naciones: {
+
+            minimo: 40,
+
+            maximo: 120
+
+        }
+
+    },
+
+    6: {
+
+        nombre: "6x Tierra",
+
+        ancho: 24576,
+
+        alto: 12288,
+
+        continentes: {
+
+            minimo: 6,
+
+            maximo: 14
+
+        },
+
+        islas: {
+
+            minimo: 70,
+
+            maximo: 180
+
+        },
+
+        rios: {
+
+            minimo: 350,
+
+            maximo: 700
+
+        },
+
+        naciones: {
+
+            minimo: 60,
+
+            maximo: 160
+
+        }
+
+    },
+
+    7: {
+
+        nombre: "7x Tierra",
+
+        ancho: 28672,
+
+        alto: 14336,
+
+        continentes: {
+
+            minimo: 7,
+
+            maximo: 16
+
+        },
+
+        islas: {
+
+            minimo: 90,
+
+            maximo: 220
+
+        },
+
+        rios: {
+
+            minimo: 500,
+
+            maximo: 900
+
+        },
+
+        naciones: {
+
+            minimo: 80,
+
+            maximo: 220
+
+        }
+
+    },
+
+    8: {
+
+        nombre: "8x Tierra",
+
+        ancho: 32768,
+
+        alto: 16384,
+
+        continentes: {
+
+            minimo: 8,
+
+            maximo: 18
+
+        },
+
+        islas: {
+
+            minimo: 110,
+
+            maximo: 260
+
+        },
+
+        rios: {
+
+            minimo: 700,
+
+            maximo: 1100
+
+        },
+
+        naciones: {
+
+            minimo: 120,
+
+            maximo: 300
+
+        }
+
+    },
+
+    9: {
+
+        nombre: "9x Tierra",
+
+        ancho: 36864,
+
+        alto: 18432,
+
+        continentes: {
+
+            minimo: 9,
+
+            maximo: 20
+
+        },
+
+        islas: {
+
+            minimo: 130,
+
+            maximo: 300
+
+        },
+
+        rios: {
+
+            minimo: 900,
+
+            maximo: 1400
+
+        },
+
+        naciones: {
+
+            minimo: 160,
+
+            maximo: 400
+
+        }
+
+    },
+
+    10: {
+
+        nombre: "10x Tierra",
+
+        ancho: 40960,
+
+        alto: 20480,
+
+        continentes: {
+
+            minimo: 10,
+
+            maximo: 25
+
+        },
+
+        islas: {
+
+            minimo: 150,
+
+            maximo: 400
+
+        },
+
+        rios: {
+
+            minimo: 1200,
+
+            maximo: 1800
+
+        },
+
+        naciones: {
+
+            minimo: 200,
+
+            maximo: 500
+
+        }
+
+    }
+
+};
+
+/**
+ * ==========================================================
+ * Devuelve la configuración de una escala.
+ * ==========================================================
+ */
+
+export function obtenerEscala(escala) {
+
+    return ESCALAS[escala] ?? ESCALAS[1];
+
+}
