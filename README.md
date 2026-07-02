@@ -1,1 +1,1 @@
-# fantasy-map-generator
+# fantasy
