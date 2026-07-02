@@ -1,0 +1,184 @@
+/*
+==========================================================
+Proyecto : Fantasy Map Generator
+Archivo  : variables.css
+Ruta     : frontend/css/variables.css
+Autor    : OpenAI + Asmodeus
+Licencia : MIT
+
+Descripción:
+Variables CSS globales del proyecto.
+
+Este archivo contiene únicamente variables reutilizables.
+No debe contener reglas de estilo para elementos.
+
+Todas las hojas de estilo utilizarán estas variables
+para mantener una apariencia uniforme.
+==========================================================
+*/
+
+:root {
+
+    /* ======================================================
+       Tipografías
+    ====================================================== */
+
+    --fuente-principal:
+        "Segoe UI",
+        Tahoma,
+        Geneva,
+        Verdana,
+        sans-serif;
+
+    --fuente-monospace:
+        "Consolas",
+        "Courier New",
+        monospace;
+
+    /* ======================================================
+       Tamaños de fuente
+    ====================================================== */
+
+    --texto-xs: 0.75rem;
+    --texto-sm: 0.875rem;
+    --texto-md: 1rem;
+    --texto-lg: 1.25rem;
+    --texto-xl: 1.5rem;
+    --texto-xxl: 2rem;
+
+    /* ======================================================
+       Colores principales
+    ====================================================== */
+
+    --color-fondo: #1b1f24;
+    --color-superficie: #242a31;
+    --color-superficie-secundaria: #2d353f;
+
+    --color-texto: #f2f2f2;
+    --color-texto-secundario: #bfc7d5;
+
+    --color-borde: #404854;
+
+    /* ======================================================
+       Colores de interfaz
+    ====================================================== */
+
+    --color-primario: #4a90e2;
+    --color-primario-hover: #66a8f5;
+
+    --color-exito: #3bb273;
+    --color-advertencia: #f0ad4e;
+    --color-error: #d9534f;
+
+    /* ======================================================
+       Área del mapa
+    ====================================================== */
+
+    --color-mapa-fondo: #11161b;
+    --color-canvas: #000000;
+
+    /* ======================================================
+       Paneles
+    ====================================================== */
+
+    --ancho-panel-izquierdo: 320px;
+    --ancho-panel-derecho: 320px;
+
+    --alto-barra-superior: 64px;
+    --alto-barra-inferior: 28px;
+
+    /* ======================================================
+       Bordes
+    ====================================================== */
+
+    --radio-pequeño: 4px;
+    --radio-normal: 8px;
+    --radio-grande: 12px;
+
+    /* ======================================================
+       Espaciado
+    ====================================================== */
+
+    --espacio-xxs: 4px;
+    --espacio-xs: 8px;
+    --espacio-sm: 12px;
+    --espacio-md: 16px;
+    --espacio-lg: 24px;
+    --espacio-xl: 32px;
+
+    /* ======================================================
+       Sombras
+    ====================================================== */
+
+    --sombra-suave:
+        0 2px 8px rgba(0, 0, 0, 0.25);
+
+    --sombra-media:
+        0 4px 12px rgba(0, 0, 0, 0.35);
+
+    --sombra-fuerte:
+        0 8px 20px rgba(0, 0, 0, 0.45);
+
+    /* ======================================================
+       Animaciones
+    ====================================================== */
+
+    --duracion-rapida: 0.15s;
+    --duracion-normal: 0.30s;
+    --duracion-lenta: 0.60s;
+
+    /* ======================================================
+       Z-Index
+    ====================================================== */
+
+    --z-mapa: 10;
+    --z-paneles: 100;
+    --z-dialogos: 1000;
+    --z-modal: 5000;
+    --z-tooltip: 10000;
+
+}
+
+/* ==========================================================
+   Tema claro (uso futuro)
+========================================================== */
+
+[data-tema="claro"] {
+
+    --color-fondo: #eceff3;
+
+    --color-superficie: #ffffff;
+
+    --color-superficie-secundaria: #f6f8fb;
+
+    --color-texto: #20242a;
+
+    --color-texto-secundario: #555f6d;
+
+    --color-borde: #cfd7e2;
+
+    --color-mapa-fondo: #d9e4ef;
+
+}
+
+/* ==========================================================
+   Tema oscuro (por defecto)
+========================================================== */
+
+[data-tema="oscuro"] {
+
+    --color-fondo: #1b1f24;
+
+    --color-superficie: #242a31;
+
+    --color-superficie-secundaria: #2d353f;
+
+    --color-texto: #f2f2f2;
+
+    --color-texto-secundario: #bfc7d5;
+
+    --color-borde: #404854;
+
+    --color-mapa-fondo: #11161b;
+
+}
