@@ -1,153 +1,181 @@
 <!DOCTYPE html>
+<!--
+==========================================================
+Proyecto : Fantasy Map Generator
+Archivo  : index.html
+Ruta     : /index.html
+Autor    : OpenAI + Asmodeus
+Licencia : MIT
+
+Descripción:
+Archivo principal de la aplicación.
+
+Su función es:
+
+- Cargar las hojas de estilo.
+- Crear la estructura principal de la interfaz.
+- Contener el canvas donde se dibujará el mundo.
+- Cargar el punto de entrada de JavaScript (main.js).
+
+Este archivo debe mantenerse lo más limpio posible.
+Toda la lógica estará en módulos JavaScript.
+==========================================================
+-->
+
 <html lang="es">
 
 <head>
 
     <meta charset="UTF-8">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    <title>Generador de Mapas Fantásticos</title>
+    <meta
+        name="description"
+        content="Generador de Mapas de Fantasía"
+    >
 
-    <link rel="stylesheet"
-          href="frontend/css/main.css">
+    <meta
+        name="author"
+        content="OpenAI + Asmodeus"
+    >
+
+    <title>Fantasy Map Generator</title>
+
+    <!-- ========================= -->
+    <!-- Hojas de estilo           -->
+    <!-- ========================= -->
+
+    <link
+        rel="stylesheet"
+        href="frontend/css/variables.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="frontend/css/main.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="frontend/css/mapa.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="frontend/css/paneles.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="frontend/css/botones.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="frontend/css/editor.css"
+    >
 
 </head>
 
 <body>
 
-    <aside id="panelLateral">
+    <!-- ====================================================== -->
+    <!-- CONTENEDOR PRINCIPAL                                   -->
+    <!-- ====================================================== -->
 
-        <header>
+    <div id="aplicacion">
 
-            <h1>Generador de Mapas</h1>
+        <!-- ================================================ -->
+        <!-- Barra superior                                   -->
+        <!-- ================================================ -->
 
-            <p>
-                Crea mundos fantásticos de forma procedural.
-            </p>
+        <header id="barra-superior">
+
+            <div id="logo">
+
+                <h1>
+                    Fantasy Map Generator
+                </h1>
+
+            </div>
+
+            <nav id="barra-herramientas">
+
+                <!--
+                    Los botones se añadirán
+                    durante las siguientes fases.
+                -->
+
+            </nav>
 
         </header>
 
-        <section class="panel">
+        <!-- ================================================ -->
+        <!-- Área principal                                   -->
+        <!-- ================================================ -->
 
-            <h2>Nuevo Mundo</h2>
+        <main id="contenido-principal">
 
-            <label for="inputSemilla">
+            <!-- Panel izquierdo -->
 
-                Semilla
+            <aside id="panel-izquierdo">
 
-            </label>
+                <!--
+                    Paneles de edición.
+                -->
 
-            <div class="fila">
+            </aside>
 
-                <input
-                    id="inputSemilla"
-                    type="number"
-                    placeholder="Aleatoria">
+            <!-- Área del mapa -->
 
-                <button
-                    id="btnSemilla"
-                    title="Generar semilla">
+            <section id="contenedor-mapa">
 
-                    🎲
+                <canvas id="canvas-mapa">
 
-                </button>
+                    Tu navegador no soporta Canvas.
 
-            </div>
+                </canvas>
 
-            <label for="sliderEscala">
+            </section>
 
-                Tamaño del Mundo
+            <!-- Panel derecho -->
 
-            </label>
+            <aside id="panel-derecho">
 
-            <div class="fila">
+                <!--
+                    Información del mundo.
+                -->
 
-                <input
-                    id="sliderEscala"
-                    type="range"
-                    min="1"
-                    max="10"
-                    value="1">
+            </aside>
 
-                <input
-                    id="inputEscala"
-                    type="number"
-                    min="1"
-                    max="10"
-                    value="1">
+        </main>
 
-            </div>
+        <!-- ================================================ -->
+        <!-- Barra inferior                                   -->
+        <!-- ================================================ -->
 
-            <div id="informacionEscala">
+        <footer id="barra-inferior">
 
-                <div class="dato">
+            <span id="estado-aplicacion">
+                Inicializando...
+            </span>
 
-                    <span>Escala</span>
+        </footer>
 
-                    <strong>1x Tierra</strong>
+    </div>
 
-                </div>
-
-                <div class="dato">
-
-                    <span>Tamaño</span>
-
-                    <strong>4096 × 2048</strong>
-
-                </div>
-
-                <div class="dato">
-
-                    <span>Continentes</span>
-
-                    <strong>1 - 3</strong>
-
-                </div>
-
-                <div class="dato">
-
-                    <span>Islas</span>
-
-                    <strong>10 - 30</strong>
-
-                </div>
-
-                <div class="dato">
-
-                    <span>Ríos</span>
-
-                    <strong>20 - 80</strong>
-
-                </div>
-
-            </div>
-
-            <button id="btnCrearMundo">
-
-                Crear Mundo
-
-            </button>
-
-        </section>
-
-    </aside>
-
-    <main id="visorMapa">
-
-        <canvas id="canvasMapa">
-
-            Tu navegador no soporta Canvas.
-
-        </canvas>
-
-    </main>
+    <!-- ====================================================== -->
+    <!-- Punto de entrada del proyecto                          -->
+    <!-- ====================================================== -->
 
     <script
         type="module"
-        src="frontend/js/main.js">
-    </script>
+        src="frontend/js/main.js"
+    ></script>
 
 </body>
 
