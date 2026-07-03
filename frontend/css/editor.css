@@ -1,0 +1,312 @@
+/*
+==========================================================
+Proyecto : Fantasy Map Generator
+Archivo  : editor.css
+Ruta     : frontend/css/editor.css
+Autor    : OpenAI + Asmodeus
+Licencia : MIT
+
+Descripción:
+Hoja de estilos exclusiva del editor del mapa.
+
+Responsabilidades:
+
+- Herramientas del editor.
+- Barras de herramientas.
+- Inspector de propiedades.
+- Capas temporales.
+- Cursores del editor.
+- Paneles flotantes.
+- Indicadores visuales.
+
+IMPORTANTE:
+
+Este archivo NO contiene estilos generales.
+NO contiene estilos del mapa.
+NO contiene estilos de botones.
+NO contiene estilos de paneles.
+
+Su único objetivo es dar soporte al sistema
+de edición del mapa.
+==========================================================
+*/
+
+/* ==========================================================
+   Contenedor principal del editor
+========================================================== */
+
+#editor {
+
+    position: absolute;
+
+    inset: 0;
+
+    pointer-events: none;
+
+    z-index: var(--z-paneles);
+
+}
+
+/* ==========================================================
+   Barra de herramientas flotante
+========================================================== */
+
+.editor-barra {
+
+    position: absolute;
+
+    top: var(--espacio-lg);
+
+    left: var(--espacio-lg);
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: var(--espacio-sm);
+
+    padding: var(--espacio-sm);
+
+    border: 1px solid var(--color-borde);
+
+    border-radius: var(--radio-normal);
+
+    background-color: var(--color-superficie);
+
+    box-shadow: var(--sombra-media);
+
+    pointer-events: auto;
+
+}
+
+/* ==========================================================
+   Panel flotante
+========================================================== */
+
+.editor-panel {
+
+    position: absolute;
+
+    top: var(--espacio-lg);
+
+    right: var(--espacio-lg);
+
+    width: 300px;
+
+    max-height: calc(100% - (var(--espacio-lg) * 2));
+
+    display: flex;
+
+    flex-direction: column;
+
+    overflow: hidden;
+
+    border: 1px solid var(--color-borde);
+
+    border-radius: var(--radio-normal);
+
+    background-color: var(--color-superficie);
+
+    box-shadow: var(--sombra-media);
+
+    pointer-events: auto;
+
+}
+
+/* ==========================================================
+   Cabecera del panel
+========================================================== */
+
+.editor-panel-cabecera {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: var(--espacio-md);
+
+    border-bottom: 1px solid var(--color-borde);
+
+    background-color: var(--color-superficie-secundaria);
+
+    font-weight: bold;
+
+}
+
+/* ==========================================================
+   Contenido
+========================================================== */
+
+.editor-panel-contenido {
+
+    flex: 1;
+
+    overflow-y: auto;
+
+    padding: var(--espacio-md);
+
+}
+
+/* ==========================================================
+   Herramienta activa
+========================================================== */
+
+.editor-herramienta-activa {
+
+    border: 2px solid var(--color-primario);
+
+    box-shadow: 0 0 10px rgba(74, 144, 226, 0.35);
+
+}
+
+/* ==========================================================
+   Cursores del editor
+========================================================== */
+
+.cursor-pincel {
+
+    cursor: crosshair;
+
+}
+
+.cursor-borrar {
+
+    cursor: not-allowed;
+
+}
+
+.cursor-mover {
+
+    cursor: move;
+
+}
+
+.cursor-seleccion {
+
+    cursor: cell;
+
+}
+
+/* ==========================================================
+   Previsualización del pincel
+========================================================== */
+
+.editor-pincel {
+
+    position: absolute;
+
+    width: 32px;
+
+    height: 32px;
+
+    margin-left: -16px;
+
+    margin-top: -16px;
+
+    border: 2px solid var(--color-primario);
+
+    border-radius: 50%;
+
+    background-color: rgba(74, 144, 226, 0.15);
+
+    pointer-events: none;
+
+    display: none;
+
+}
+
+.editor-pincel.visible {
+
+    display: block;
+
+}
+
+/* ==========================================================
+   Área de selección
+========================================================== */
+
+.editor-seleccion {
+
+    position: absolute;
+
+    border: 1px dashed var(--color-primario);
+
+    background-color: rgba(74, 144, 226, 0.10);
+
+    pointer-events: none;
+
+}
+
+/* ==========================================================
+   Gizmos de edición
+========================================================== */
+
+.editor-gizmo {
+
+    position: absolute;
+
+    pointer-events: auto;
+
+}
+
+/* ==========================================================
+   Cuadrícula de ayuda
+========================================================== */
+
+.editor-cuadricula {
+
+    position: absolute;
+
+    inset: 0;
+
+    display: none;
+
+    pointer-events: none;
+
+    opacity: 0.15;
+
+}
+
+.editor-cuadricula.visible {
+
+    display: block;
+
+}
+
+/* ==========================================================
+   Información flotante
+========================================================== */
+
+.editor-info {
+
+    position: absolute;
+
+    bottom: var(--espacio-lg);
+
+    right: var(--espacio-lg);
+
+    padding: var(--espacio-sm) var(--espacio-md);
+
+    border-radius: var(--radio-normal);
+
+    background-color: rgba(0, 0, 0, 0.70);
+
+    color: var(--color-texto);
+
+    font-size: var(--texto-sm);
+
+    pointer-events: none;
+
+}
+
+/* ==========================================================
+   Ocultación
+========================================================== */
+
+.editor-oculto {
+
+    display: none !important;
+
+}
