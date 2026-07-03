@@ -1,0 +1,265 @@
+/*
+==========================================================
+Proyecto : Fantasy Map Generator
+Archivo  : mapa.css
+Ruta     : frontend/css/mapa.css
+Autor    : OpenAI + Asmodeus
+Licencia : MIT
+
+Descripción:
+Estilos exclusivos del área de renderizado del mapa.
+
+Responsabilidades:
+
+- Contenedor del mapa.
+- Canvas principal.
+- Capas futuras de render.
+- Cursor del mapa.
+- Indicadores visuales relacionados con el mapa.
+
+Este archivo NO contiene estilos de paneles,
+botones ni del editor.
+==========================================================
+*/
+
+/* ==========================================================
+   Contenedor principal del mapa
+========================================================== */
+
+#contenedor-mapa {
+
+    position: relative;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    width: 100%;
+    height: 100%;
+
+    overflow: hidden;
+
+    background-color: var(--color-mapa-fondo);
+
+    cursor: grab;
+
+}
+
+/* ==========================================================
+   Estados del cursor
+========================================================== */
+
+#contenedor-mapa.arrastrando {
+
+    cursor: grabbing;
+
+}
+
+#contenedor-mapa.seleccionando {
+
+    cursor: crosshair;
+
+}
+
+#contenedor-mapa.editando {
+
+    cursor: cell;
+
+}
+
+#contenedor-mapa.esperando {
+
+    cursor: wait;
+
+}
+
+/* ==========================================================
+   Canvas principal
+========================================================== */
+
+#canvas-mapa {
+
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    background-color: var(--color-canvas);
+
+    image-rendering: auto;
+
+    outline: none;
+
+}
+
+/* ==========================================================
+   Capas futuras
+========================================================== */
+
+/*
+Cada una de estas capas será creada por JavaScript
+en futuras fases.
+
+Orden previsto:
+
+1. Terreno
+2. Océanos
+3. Ríos
+4. Lagos
+5. Biomas
+6. Recursos
+7. Caminos
+8. Ciudades
+9. Fronteras
+10. Etiquetas
+11. Selección
+12. Editor
+*/
+
+.capa-mapa {
+
+    position: absolute;
+
+    inset: 0;
+
+    pointer-events: none;
+
+}
+
+/* ==========================================================
+   Rejilla de depuración
+========================================================== */
+
+.rejilla-debug {
+
+    position: absolute;
+
+    inset: 0;
+
+    pointer-events: none;
+
+    opacity: 0.15;
+
+}
+
+/* ==========================================================
+   Caja de selección
+========================================================== */
+
+.seleccion-rectangular {
+
+    position: absolute;
+
+    border: 1px dashed var(--color-primario);
+
+    background-color: rgba(74, 144, 226, 0.12);
+
+    pointer-events: none;
+
+}
+
+/* ==========================================================
+   Marcadores temporales
+========================================================== */
+
+.marcador-debug {
+
+    position: absolute;
+
+    width: 8px;
+    height: 8px;
+
+    margin-left: -4px;
+    margin-top: -4px;
+
+    border-radius: 50%;
+
+    background-color: var(--color-error);
+
+    pointer-events: none;
+
+}
+
+/* ==========================================================
+   Overlay de carga
+========================================================== */
+
+#overlay-mapa {
+
+    position: absolute;
+
+    inset: 0;
+
+    display: none;
+
+    justify-content: center;
+
+    align-items: center;
+
+    background-color: rgba(0, 0, 0, 0.45);
+
+    z-index: var(--z-paneles);
+
+}
+
+#overlay-mapa.visible {
+
+    display: flex;
+
+}
+
+#overlay-mapa .mensaje {
+
+    padding: var(--espacio-lg);
+
+    border-radius: var(--radio-normal);
+
+    background-color: var(--color-superficie);
+
+    color: var(--color-texto);
+
+    box-shadow: var(--sombra-media);
+
+    font-size: var(--texto-lg);
+
+    text-align: center;
+
+}
+
+/* ==========================================================
+   Información flotante
+========================================================== */
+
+#informacion-mapa {
+
+    position: absolute;
+
+    bottom: var(--espacio-md);
+
+    left: var(--espacio-md);
+
+    padding: var(--espacio-xs) var(--espacio-sm);
+
+    border-radius: var(--radio-pequeño);
+
+    background-color: rgba(0, 0, 0, 0.55);
+
+    color: var(--color-texto);
+
+    font-size: var(--texto-sm);
+
+    pointer-events: none;
+
+    opacity: 0;
+
+    transition: opacity var(--duracion-normal);
+
+}
+
+#informacion-mapa.visible {
+
+    opacity: 1;
+
+}
