@@ -1,268 +1,297 @@
-*{
+/*
+==========================================================
+Proyecto : Fantasy Map Generator
+Archivo  : main.css
+Ruta     : frontend/css/main.css
+Autor    : OpenAI + Asmodeus
+Licencia : MIT
 
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
+Descripción:
+Hoja de estilos principal del proyecto.
+
+Responsabilidades:
+
+- Reset básico.
+- Configuración global.
+- Distribución principal de la aplicación.
+- Layout general.
+
+NO contiene estilos específicos del mapa, paneles,
+botones o editor. Esos estarán en sus propios archivos.
+==========================================================
+*/
+
+/* ==========================================================
+   Reset básico
+========================================================== */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+/* ==========================================================
+   Documento
+========================================================== */
+
+html {
+    width: 100%;
+    height: 100%;
+    font-size: 16px;
+}
+
+body {
+    width: 100%;
+    height: 100%;
+
+    margin: 0;
+    padding: 0;
+
+    overflow: hidden;
+
+    font-family: var(--fuente-principal);
+
+    background-color: var(--color-fondo);
+    color: var(--color-texto);
+
+    user-select: none;
+}
+
+/* ==========================================================
+   Elementos básicos
+========================================================== */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+    margin: 0;
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+canvas {
+    display: block;
+}
+
+img {
+    display: block;
+    max-width: 100%;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+/* ==========================================================
+   Contenedor principal
+========================================================== */
+
+#aplicacion {
+
+    width: 100vw;
+    height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+
+    background: var(--color-fondo);
 
 }
 
-:root{
+/* ==========================================================
+   Barra superior
+========================================================== */
 
-    --fondo:#1d2026;
-    --panel:#2b3038;
-    --panelClaro:#383f49;
+#barra-superior {
 
-    --texto:#f5f5f5;
-    --textoSecundario:#b9bcc4;
+    height: var(--alto-barra-superior);
 
-    --borde:#4a515c;
+    display: flex;
 
-    --boton:#4c82ff;
-    --botonHover:#6795ff;
+    align-items: center;
 
-}
+    justify-content: space-between;
 
-body{
+    padding-left: var(--espacio-lg);
+    padding-right: var(--espacio-lg);
 
-    display:flex;
+    background: var(--color-superficie);
 
-    width:100vw;
-    height:100vh;
+    border-bottom: 1px solid var(--color-borde);
 
-    overflow:hidden;
-
-    background:var(--fondo);
-
-    color:var(--texto);
-
-    font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
+    flex-shrink: 0;
 
 }
 
-/* ---------------------------- */
+/* ==========================================================
+   Logo
+========================================================== */
 
-#panelLateral{
+#logo {
 
-    width:340px;
+    display: flex;
 
-    min-width:340px;
+    align-items: center;
 
-    background:var(--panel);
-
-    border-right:1px solid var(--borde);
-
-    padding:20px;
-
-    overflow-y:auto;
+    height: 100%;
 
 }
 
-/* ---------------------------- */
+#logo h1 {
 
-header{
+    font-size: var(--texto-xl);
 
-    margin-bottom:25px;
+    font-weight: 700;
 
-}
-
-header h1{
-
-    font-size:28px;
-
-    margin-bottom:10px;
+    color: var(--color-texto);
 
 }
 
-header p{
+/* ==========================================================
+   Barra de herramientas
+========================================================== */
 
-    color:var(--textoSecundario);
+#barra-herramientas {
 
-    line-height:1.5;
+    display: flex;
 
-}
+    align-items: center;
 
-/* ---------------------------- */
-
-.panel{
-
-    display:flex;
-
-    flex-direction:column;
-
-    gap:15px;
+    gap: var(--espacio-sm);
 
 }
 
-.panel h2{
+/* ==========================================================
+   Zona central
+========================================================== */
 
-    margin-bottom:5px;
+#contenido-principal {
 
-}
+    flex: 1;
 
-label{
+    display: flex;
 
-    font-size:14px;
+    overflow: hidden;
 
-    color:var(--textoSecundario);
-
-}
-
-/* ---------------------------- */
-
-.fila{
-
-    display:flex;
-
-    gap:10px;
+    min-height: 0;
 
 }
 
-/* ---------------------------- */
+/* ==========================================================
+   Paneles laterales
+========================================================== */
 
-input[type="number"]{
+#panel-izquierdo,
+#panel-derecho {
 
-    width:80px;
+    width: var(--ancho-panel-izquierdo);
 
-}
+    background: var(--color-superficie);
 
-input[type="number"],
-input[type="text"]{
+    border-color: var(--color-borde);
 
-    background:var(--panelClaro);
+    overflow: hidden;
 
-    color:white;
-
-    border:1px solid var(--borde);
-
-    border-radius:6px;
-
-    padding:10px;
+    flex-shrink: 0;
 
 }
 
-/* ---------------------------- */
+#panel-izquierdo {
 
-input[type="range"]{
-
-    flex:1;
+    border-right: 1px solid var(--color-borde);
 
 }
 
-/* ---------------------------- */
+#panel-derecho {
 
-button{
-
-    cursor:pointer;
-
-    border:none;
-
-    border-radius:6px;
-
-    background:var(--boton);
-
-    color:white;
-
-    padding:12px;
-
-    transition:0.25s;
-
-    font-size:15px;
+    border-left: 1px solid var(--color-borde);
 
 }
 
-button:hover{
+/* ==========================================================
+   Área del mapa
+========================================================== */
 
-    background:var(--botonHover);
+#contenedor-mapa {
 
-}
+    flex: 1;
 
-/* ---------------------------- */
+    position: relative;
 
-#btnSemilla{
+    overflow: hidden;
 
-    width:55px;
-
-    padding:0;
-
-    font-size:20px;
+    background: var(--color-mapa-fondo);
 
 }
 
-/* ---------------------------- */
+/* ==========================================================
+   Barra inferior
+========================================================== */
 
-#informacionEscala{
+#barra-inferior {
 
-    display:flex;
+    height: var(--alto-barra-inferior);
 
-    flex-direction:column;
+    display: flex;
 
-    gap:10px;
+    align-items: center;
 
-    margin-top:10px;
+    padding-left: var(--espacio-md);
+    padding-right: var(--espacio-md);
 
-}
+    background: var(--color-superficie);
 
-.dato{
+    border-top: 1px solid var(--color-borde);
 
-    display:flex;
+    font-size: var(--texto-sm);
 
-    justify-content:space-between;
+    color: var(--color-texto-secundario);
 
-    background:var(--panelClaro);
-
-    border-radius:6px;
-
-    padding:10px 12px;
-
-}
-
-.dato span{
-
-    color:var(--textoSecundario);
+    flex-shrink: 0;
 
 }
 
-/* ---------------------------- */
+/* ==========================================================
+   Utilidades
+========================================================== */
 
-#btnCrearMundo{
+.oculto {
+    display: none !important;
+}
 
-    margin-top:10px;
+.centrado {
 
-    padding:14px;
+    display: flex;
 
-    font-size:16px;
+    justify-content: center;
 
-    font-weight:bold;
+    align-items: center;
 
 }
 
-/* ---------------------------- */
+.scroll-vertical {
 
-#visorMapa{
+    overflow-y: auto;
 
-    flex:1;
-
-    position:relative;
-
-    overflow:hidden;
-
-    background:#20242b;
+    overflow-x: hidden;
 
 }
 
-/* ---------------------------- */
+.scroll-horizontal {
 
-#canvasMapa{
+    overflow-x: auto;
 
-    width:100%;
-
-    height:100%;
-
-    display:block;
-
-    background:#20242b;
+    overflow-y: hidden;
 
 }
