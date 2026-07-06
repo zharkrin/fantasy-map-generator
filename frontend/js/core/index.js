@@ -9,82 +9,66 @@ Licencia : MIT
 Descripción:
 Núcleo principal (Core) de la aplicación.
 
-El Core es el encargado de:
+Responsabilidades:
 
-- Inicializar todos los módulos.
-- Gestionar el ciclo de vida del proyecto.
+- Inicializar los servicios principales.
+- Gestionar el ciclo de vida del motor.
 - Ejecutar el bucle principal.
-- Actualizar los módulos.
-- Renderizar los módulos.
-- Finalizar correctamente la aplicación.
-
-IMPORTANTE:
-
-El Core NO contiene lógica del mapa.
-
-Simplemente coordina todos los sistemas.
+- Coordinar los módulos registrados.
 
 ==========================================================
 */
 
 import { configuracion } from "./config/index.js";
 import { estado } from "./estado/index.js";
+import { random } from "./random/index.js";
 
 export class Core {
 
-    /**
-     * Constructor.
-     */
     constructor() {
 
-        /**
-         * Lista de módulos registrados.
-         * Todos los sistemas futuros (Render,
-         * Terreno, Clima, IA, etc.) se añadirán aquí.
-         */
         this.modulos = [];
 
-        /**
-         * Estado del motor.
-         */
         this.iniciado = false;
 
-        /**
-         * Control del bucle principal.
-         */
         this.enEjecucion = false;
 
-        /**
-         * Frame anterior.
-         */
         this.tiempoAnterior = 0;
 
-        /**
-         * Delta Time.
-         */
         this.deltaTime = 0;
 
-        /**
-         * ID del requestAnimationFrame.
-         */
         this.animationFrame = null;
 
     }
 
-    /**
-     * Inicializa el motor.
-     */
     async inicializar() {
 
         console.info("==========================================");
         console.info("Inicializando Core...");
         console.info("==========================================");
 
+        /*
+        ==========================================
+        Servicios principales
+        ==========================================
+        */
+
         await configuracion.inicializar();
+
+        random.inicializar(
+            configuracion.mundo.semilla
+        );
 
         await estado.inicializar();
 
+        /*
+        ==========================================
+        Registro de módulos
+        ==========================================
+        */
+
         this.registrarModulo(configuracion);
+
         this.registrarModulo(estado);
 
         await this.inicializarModulos();
@@ -97,14 +81,13 @@ export class Core {
 
     }
 
-    /**
-     * Registra un módulo.
-     *
-     * @param {Object} modulo
-     */
     registrarModulo(modulo) {
 
         if (!modulo) {
+            return;
+        }
+
+        if (this.modulos.includes(modulo)) {
             return;
         }
 
@@ -112,9 +95,6 @@ export class Core {
 
     }
 
-    /**
-     * Inicializa todos los módulos registrados.
-     */
     async inicializarModulos() {
 
         for (const modulo of this.modulos) {
@@ -129,9 +109,6 @@ export class Core {
 
     }
 
-    /**
-     * Inicia el bucle principal.
-     */
     iniciarBucle() {
 
         if (this.enEjecucion) {
@@ -148,11 +125,6 @@ export class Core {
 
     }
 
-    /**
-     * Bucle principal.
-     *
-     * @param {number} tiempoActual
-     */
     bucle(tiempoActual) {
 
         if (!this.enEjecucion) {
@@ -174,11 +146,6 @@ export class Core {
 
     }
 
-    /**
-     * Actualiza todos los módulos.
-     *
-     * @param {number} deltaTime
-     */
     actualizar(deltaTime) {
 
         for (const modulo of this.modulos) {
@@ -193,11 +160,6 @@ export class Core {
 
     }
 
-    /**
-     * Renderiza todos los módulos.
-     *
-     * @param {number} deltaTime
-     */
     renderizar(deltaTime) {
 
         for (const modulo of this.modulos) {
@@ -212,9 +174,6 @@ export class Core {
 
     }
 
-    /**
-     * Detiene el motor.
-     */
     detener() {
 
         this.enEjecucion = false;
@@ -229,9 +188,6 @@ export class Core {
 
     }
 
-    /**
-     * Destruye todos los módulos.
-     */
     destruir() {
 
         this.detener();
