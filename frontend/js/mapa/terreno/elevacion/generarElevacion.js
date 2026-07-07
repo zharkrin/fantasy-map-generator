@@ -1,46 +1,60 @@
 /*
 ==========================================================
 Proyecto : Fantasy Map Generator
-Archivo  : generarElevacion.js
-Ruta     : frontend/js/mapa/terreno/elevacion/generarElevacion.js
-Autor    : OpenAI + Asmodeus
-Licencia : MIT
 
-Descripción:
-Genera el mapa base de elevación.
+Archivo:
+generarElevacion.js
 
-Este módulo únicamente crea la estructura inicial de
-celdas y asigna un valor de elevación.
+Ruta:
+frontend/js/mapa/terreno/elevacion/
 
-No genera:
-
-- Continentes
-- Costas
-- Montañas
-- Ríos
-- Biomas
-
-Todo eso se realizará en fases posteriores.
-
+Licencia:
+MIT
 ==========================================================
 */
 
-import { random } from "../../../core/random/index.js";
+/**
+ * Genera el mapa base de elevación.
+ *
+ * Este módulo NO decide cómo se genera el ruido.
+ * Recibe una función generadora externa.
+ *
+ * Esto permite utilizar:
+ *
+ * - Simplex
+ * - Perlin
+ * - Worley
+ * - FBM
+ * - Ridged
+ * - Domain Warp
+ *
+ * sin modificar este archivo.
+ */
 
 /**
- * Genera un mapa de elevación.
+ * Genera el mapa de elevación.
  *
- * @param {number} ancho
- * @param {number} alto
- *
+ * @param {Object} opciones
  * @returns {Array<Array<Object>>}
  */
-export function generarElevacion(ancho, alto) {
+export function generarElevacion(opciones = {}) {
 
-    if (ancho <= 0 || alto <= 0) {
+    const {
+
+        ancho = 512,
+
+        alto = 512,
+
+        escala = 1,
+
+        generadorRuido
+
+    } = opciones;
+
+    if (typeof generadorRuido !== "function") {
 
         throw new Error(
-            "Las dimensiones del mapa deben ser mayores que cero."
+            "Debe proporcionarse un generador de ruido."
         );
 
     }
@@ -53,7 +67,18 @@ export function generarElevacion(ancho, alto) {
 
         for (let x = 0; x < ancho; x++) {
 
-            fila.push(crearCelda(x, y));
+            fila.push({
+
+                x,
+
+                y,
+
+                elevacion: generadorRuido(
+                    x * escala,
+                    y * escala
+                )
+
+            });
 
         }
 
@@ -62,36 +87,5 @@ export function generarElevacion(ancho, alto) {
     }
 
     return mapa;
-
-}
-
-/**
- * Crea una celda del mapa.
- *
- * @param {number} x
- * @param {number} y
- *
- * @returns {Object}
- */
-function crearCelda(x, y) {
-
-    return {
-
-        /**
-         * Coordenadas.
-         */
-        x,
-        y,
-
-        /**
-         * Elevación.
-         *
-         * En esta primera fase es únicamente ruido
-         * aleatorio. Posteriormente será sustituido
-         * por Simplex Noise.
-         */
-        elevacion: random.random()
-
-    };
 
 }
