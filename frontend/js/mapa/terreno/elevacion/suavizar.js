@@ -2,18 +2,15 @@
 ==========================================================
 Proyecto : Fantasy Map Generator
 Archivo  : suavizar.js
-Ruta     : frontend/js/mapa/terreno/elevacion/suavizar.js
+Ruta     : frontend/js/mapa/terreno/elevacion/
 Autor    : OpenAI + Asmodeus
 Licencia : MIT
+==========================================================
 
-Descripción:
-Suaviza el mapa de elevación aplicando un filtro de media.
+Suaviza un mapa de elevación mediante un filtro
+de promedio sobre las celdas vecinas.
 
-Este módulo reduce cambios bruscos de altura y genera
-transiciones más naturales.
-
-No modifica la estructura de las celdas, únicamente el
-valor de elevación.
+No modifica la matriz original.
 
 ==========================================================
 */
@@ -21,21 +18,26 @@ valor de elevación.
 /**
  * Suaviza un mapa de elevación.
  *
- * @param {Array<Array<Object>>} mapa
- * @param {number} iteraciones
- *
- * @returns {Array<Array<Object>>}
+ * @param {number[][]} mapa
+ * @param {Object} opciones
+ * @returns {number[][]}
  */
-export function suavizarElevacion(mapa, iteraciones = 1) {
+export function suavizarElevacion(mapa, opciones = {}) {
 
     if (!Array.isArray(mapa) || mapa.length === 0) {
-        return mapa;
+        throw new Error("El mapa de elevación no es válido.");
     }
 
-    let resultado = mapa;
+    const {
 
-    for (let i = 0; i < iteraciones; i++) {
-        resultado = aplicarSuavizado(resultado);
+        pasadas = 1
+
+    } = opciones;
+
+    let resultado = copiarMapa(mapa);
+
+    for (let i = 0; i < pasadas; i++) {
+        resultado = suavizar(resultado);
     }
 
     return resultado;
@@ -43,13 +45,12 @@ export function suavizarElevacion(mapa, iteraciones = 1) {
 }
 
 /**
- * Aplica una iteración de suavizado.
+ * Realiza una pasada de suavizado.
  *
- * @param {Array<Array<Object>>} mapa
- *
- * @returns {Array<Array<Object>>}
+ * @param {number[][]} mapa
+ * @returns {number[][]}
  */
-function aplicarSuavizado(mapa) {
+function suavizar(mapa) {
 
     const alto = mapa.length;
     const ancho = mapa[0].length;
@@ -58,7 +59,7 @@ function aplicarSuavizado(mapa) {
 
     for (let y = 0; y < alto; y++) {
 
-        const fila = [];
+        nuevoMapa[y] = [];
 
         for (let x = 0; x < ancho; x++) {
 
@@ -73,35 +74,39 @@ function aplicarSuavizado(mapa) {
                     const ny = y + dy;
 
                     if (
-                        nx < 0 ||
-                        ny < 0 ||
-                        nx >= ancho ||
-                        ny >= alto
+                        nx >= 0 &&
+                        nx < ancho &&
+                        ny >= 0 &&
+                        ny < alto
                     ) {
-                        continue;
-                    }
 
-                    suma += mapa[ny][nx].elevacion;
-                    vecinos++;
+                        suma += mapa[ny][nx];
+                        vecinos++;
+
+                    }
 
                 }
 
             }
 
-            fila.push({
-
-                ...mapa[y][x],
-
-                elevacion: suma / vecinos
-
-            });
+            nuevoMapa[y][x] = suma / vecinos;
 
         }
-
-        nuevoMapa.push(fila);
 
     }
 
     return nuevoMapa;
+
+}
+
+/**
+ * Copia una matriz bidimensional.
+ *
+ * @param {number[][]} mapa
+ * @returns {number[][]}
+ */
+function copiarMapa(mapa) {
+
+    return mapa.map(fila => [...fila]);
 
 }
