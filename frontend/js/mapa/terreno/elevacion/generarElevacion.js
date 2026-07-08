@@ -1,88 +1,105 @@
 /*
 ==========================================================
 Proyecto : Fantasy Map Generator
+Archivo  : generarElevacion.js
+Ruta     : frontend/js/mapa/terreno/elevacion/
+Autor    : OpenAI + Asmodeus
+Licencia : MIT
+==========================================================
 
-Archivo:
-generarElevacion.js
+Generador procedural de elevación.
 
-Ruta:
-frontend/js/mapa/terreno/elevacion/
+Genera un mapa de alturas utilizando el sistema
+de ruido configurado en crearRuido().
 
-Licencia:
-MIT
+El resultado es una matriz bidimensional cuyos
+valores están normalizados entre 0 y 1.
+
 ==========================================================
 */
 
-/**
- * Genera el mapa base de elevación.
- *
- * Este módulo NO decide cómo se genera el ruido.
- * Recibe una función generadora externa.
- *
- * Esto permite utilizar:
- *
- * - Simplex
- * - Perlin
- * - Worley
- * - FBM
- * - Ridged
- * - Domain Warp
- *
- * sin modificar este archivo.
- */
+import { crearRuido } from "../ruido/crearRuido.js";
 
 /**
- * Genera el mapa de elevación.
+ * Genera un mapa de elevación.
  *
  * @param {Object} opciones
- * @returns {Array<Array<Object>>}
+ * @returns {number[][]}
  */
 export function generarElevacion(opciones = {}) {
 
     const {
 
         ancho = 512,
-
         alto = 512,
 
-        escala = 1,
+        semilla = 12345,
 
-        generadorRuido
+        frecuencia = 0.003,
+
+        usarFBM = true,
+
+        octavas = 6,
+        persistencia = 0.5,
+        lacunaridad = 2.0
 
     } = opciones;
 
-    if (typeof generadorRuido !== "function") {
+    const ruido = crearRuido({
 
-        throw new Error(
-            "Debe proporcionarse un generador de ruido."
-        );
+        motor: "simplex",
 
-    }
+        semilla,
+
+        frecuencia,
+
+        usarFBM,
+
+        octavas,
+
+        persistencia,
+
+        lacunaridad
+
+    });
 
     const mapa = [];
 
+    let minimo = Infinity;
+    let maximo = -Infinity;
+
+    // Primera pasada: generar valores
+
     for (let y = 0; y < alto; y++) {
 
-        const fila = [];
+        mapa[y] = [];
 
         for (let x = 0; x < ancho; x++) {
 
-            fila.push({
+            const valor = ruido.obtener(x, y);
 
-                x,
+            mapa[y][x] = valor;
 
-                y,
-
-                elevacion: generadorRuido(
-                    x * escala,
-                    y * escala
-                )
-
-            });
+            if (valor < minimo) minimo = valor;
+            if (valor > maximo) maximo = valor;
 
         }
 
-        mapa.push(fila);
+    }
+
+    // Evitar división entre cero
+
+    const rango = maximo - minimo || 1;
+
+    // Segunda pasada: normalizar entre 0 y 1
+
+    for (let y = 0; y < alto; y++) {
+
+        for (let x = 0; x < ancho; x++) {
+
+            mapa[y][x] = (mapa[y][x] - minimo) / rango;
+
+        }
 
     }
 
