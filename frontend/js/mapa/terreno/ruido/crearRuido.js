@@ -2,85 +2,90 @@
 ==========================================================
 Proyecto : Fantasy Map Generator
 Archivo  : crearRuido.js
-Ruta     : frontend/js/mapa/terreno/ruido/crearRuido.js
+Ruta     : frontend/js/mapa/terreno/ruido/
 Autor    : OpenAI + Asmodeus
 Licencia : MIT
 ==========================================================
 
-Este módulo actúa como punto único de creación de
-generadores de ruido.
+Punto de entrada para crear generadores de ruido.
 
-Todo el proyecto debe utilizar EXCLUSIVAMENTE esta API
-para crear ruido procedural.
+Actualmente soporta:
 
-Nunca se deberá importar directamente simplex.js,
-perlin.js u otros motores desde el resto del proyecto.
+- Simplex
+- fBm
+
+En futuras fases se podrán añadir nuevos motores
+y modificadores sin cambiar la API pública.
 
 ==========================================================
 */
 
 import { crearSimplex } from "./motores/simplex.js";
-import { crearPerlin } from "./motores/perlin.js";
-
-/**
- * Motores de ruido registrados.
- *
- * Para añadir un nuevo motor únicamente será necesario:
- *
- * 1. Importarlo.
- * 2. Registrarlo aquí.
- */
-const MOTORES = {
-
-    simplex: crearSimplex,
-
-    perlin: crearPerlin
-
-};
+import { crearFBM } from "./fbm.js";
 
 /**
  * Crea un generador de ruido.
  *
  * @param {Object} opciones
- *
- * @property {string} motor
- * @property {number} semilla
- * @property {number} frecuencia
- * @property {number} octavas
- * @property {number} persistencia
- * @property {number} lacunaridad
- *
  * @returns {Object}
  */
 export function crearRuido(opciones = {}) {
 
     const {
 
-        motor = "simplex"
+        // Motor
+        motor = "simplex",
+
+        // Configuración general
+        semilla = 12345,
+        frecuencia = 0.003,
+
+        // fBm
+        usarFBM = true,
+        octavas = 6,
+        persistencia = 0.5,
+        lacunaridad = 2.0
 
     } = opciones;
 
-    const creador = MOTORES[motor];
+    let ruido;
 
-    if (!creador) {
+    switch (motor) {
 
-        throw new Error(
-            `Motor de ruido no soportado: ${motor}`
-        );
+        case "simplex":
+
+            ruido = crearSimplex({
+
+                semilla,
+
+                frecuencia
+
+            });
+
+            break;
+
+        default:
+
+            throw new Error(
+                `Motor de ruido no soportado: ${motor}`
+            );
 
     }
 
-    return creador(opciones);
+    if (usarFBM) {
 
-}
+        ruido = crearFBM(ruido, {
 
-/**
- * Devuelve los motores disponibles.
- *
- * @returns {string[]}
- */
-export function obtenerMotoresDisponibles() {
+            octavas,
 
-    return Object.keys(MOTORES);
+            persistencia,
+
+            lacunaridad
+
+        });
+
+    }
+
+    return ruido;
 
 }
