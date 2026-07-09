@@ -2,79 +2,121 @@
 ==========================================================
 Proyecto : Fantasy Map Generator
 Archivo  : playas.js
-Ruta     : frontend/js/mapa/terreno/costas/playas.js
+Ruta     : frontend/js/mapa/terreno/costas/
 Autor    : OpenAI + Asmodeus
 Licencia : MIT
+==========================================================
 
-Descripción:
-Marca las playas del mapa.
+Genera un mapa de playas.
 
-Una playa es una celda de costa cuya elevación se
-encuentra próxima al nivel del mar.
+Una playa es una celda de costa que cumple:
+
+- Está cerca del nivel del mar.
+- Tiene una pendiente suave.
 
 Este módulo únicamente clasifica las playas.
-No modifica la elevación ni genera arena gráfica.
+No modifica la elevación del terreno.
 
 ==========================================================
 */
 
 /**
- * Detecta playas.
+ * Detecta las playas del mapa.
  *
- * @param {Array<Array<Object>>} mapa
- * @param {number} nivelMar
- * @param {number} margen
- *
- * @returns {Array<Array<Object>>}
+ * @param {number[][]} mapaElevacion
+ * @param {boolean[][]} mapaCostas
+ * @param {Object} opciones
+ * @returns {boolean[][]}
  */
 export function detectarPlayas(
-    mapa,
-    nivelMar = 0.5,
-    margen = 0.03
+    mapaElevacion,
+    mapaCostas,
+    opciones = {}
 ) {
 
-    if (!Array.isArray(mapa) || mapa.length === 0) {
-        return mapa;
+    if (!Array.isArray(mapaElevacion) || mapaElevacion.length === 0) {
+        throw new Error("El mapa de elevación no es válido.");
     }
 
-    const alto = mapa.length;
-    const ancho = mapa[0].length;
+    if (!Array.isArray(mapaCostas) || mapaCostas.length !== mapaElevacion.length) {
+        throw new Error("El mapa de costas no es válido.");
+    }
 
-    const resultado = [];
+    const {
+
+        nivelMar = 0.50,
+
+        alturaMaxima = 0.08,
+
+        pendienteMaxima = 0.10
+
+    } = opciones;
+
+    const alto = mapaElevacion.length;
+    const ancho = mapaElevacion[0].length;
+
+    const mapaPlayas = Array.from(
+        { length: alto },
+        () => Array(ancho).fill(false)
+    );
+
+    const vecinos = [
+        [-1,-1],[0,-1],[1,-1],
+        [-1, 0],       [1, 0],
+        [-1, 1],[0, 1],[1, 1]
+    ];
 
     for (let y = 0; y < alto; y++) {
 
-        const fila = [];
-
         for (let x = 0; x < ancho; x++) {
 
-            const original = mapa[y][x];
+            if (!mapaCostas[y][x]) {
+                continue;
+            }
 
-            const celda = {
+            const altura = mapaElevacion[y][x];
 
-                ...original,
+            if (altura > nivelMar + alturaMaxima) {
+                continue;
+            }
 
-                esPlaya: false
+            let pendiente = 0;
+            let vecinosValidos = 0;
 
-            };
+            for (const [dx, dy] of vecinos) {
 
-            if (
-                celda.esCosta &&
-                celda.elevacion <= nivelMar + margen
-            ) {
+                const nx = x + dx;
+                const ny = y + dy;
 
-                celda.esPlaya = true;
+                if (
+                    nx < 0 ||
+                    ny < 0 ||
+                    nx >= ancho ||
+                    ny >= alto
+                ) {
+                    continue;
+                }
+
+                pendiente += Math.abs(
+                    altura - mapaElevacion[ny][nx]
+                );
+
+                vecinosValidos++;
 
             }
 
-            fila.push(celda);
+            pendiente /= vecinosValidos;
+
+            if (pendiente <= pendienteMaxima) {
+
+                mapaPlayas[y][x] = true;
+
+            }
 
         }
 
-        resultado.push(fila);
-
     }
 
-    return resultado;
+    return mapaPlayas;
 
 }
