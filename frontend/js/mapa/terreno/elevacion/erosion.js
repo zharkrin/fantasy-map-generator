@@ -2,127 +2,129 @@
 ==========================================================
 Proyecto : Fantasy Map Generator
 Archivo  : erosion.js
-Ruta     : frontend/js/mapa/terreno/elevacion/erosion.js
+Ruta     : frontend/js/mapa/terreno/elevacion/
 Autor    : OpenAI + Asmodeus
 Licencia : MIT
+==========================================================
 
-Descripción:
-Aplica una erosión básica sobre el mapa de elevación.
+Aplica una erosión térmica sencilla sobre un mapa
+de elevación.
 
-Esta primera implementación reduce las diferencias
-extremas de altura redistribuyendo parte de la elevación
-hacia las celdas vecinas.
+Esta primera versión reduce pendientes demasiado
+pronunciadas trasladando parte de la altura hacia
+las celdas vecinas más bajas.
 
-En fases posteriores será sustituida por un sistema de
-erosión hidráulica y térmica mucho más avanzado.
+No modifica el mapa original.
 
 ==========================================================
 */
 
 /**
- * Aplica erosión básica al mapa.
+ * Aplica erosión al mapa.
  *
- * @param {Array<Array<Object>>} mapa
- * @param {number} intensidad
- *
- * @returns {Array<Array<Object>>}
+ * @param {number[][]} mapa
+ * @param {Object} opciones
+ * @returns {number[][]}
  */
-export function erosionarElevacion(
-    mapa,
-    intensidad = 0.15
-) {
+export function erosionarElevacion(mapa, opciones = {}) {
 
     if (!Array.isArray(mapa) || mapa.length === 0) {
-        return mapa;
+        throw new Error("El mapa de elevación no es válido.");
     }
+
+    const {
+        iteraciones = 10,
+        talud = 0.05,
+        intensidad = 0.5
+    } = opciones;
+
+    let resultado = copiarMapa(mapa);
+
+    for (let i = 0; i < iteraciones; i++) {
+        resultado = erosionarPaso(
+            resultado,
+            talud,
+            intensidad
+        );
+    }
+
+    return resultado;
+
+}
+
+/**
+ * Ejecuta una iteración de erosión.
+ *
+ * @param {number[][]} mapa
+ * @param {number} talud
+ * @param {number} intensidad
+ * @returns {number[][]}
+ */
+function erosionarPaso(mapa, talud, intensidad) {
 
     const alto = mapa.length;
     const ancho = mapa[0].length;
 
-    const nuevoMapa = [];
+    const nuevo = copiarMapa(mapa);
+
+    const vecinos = [
+        [-1, -1], [0, -1], [1, -1],
+        [-1,  0],          [1,  0],
+        [-1,  1], [0,  1], [1,  1]
+    ];
 
     for (let y = 0; y < alto; y++) {
 
-        const fila = [];
-
         for (let x = 0; x < ancho; x++) {
 
-            const celda = mapa[y][x];
+            const altura = mapa[y][x];
 
-            let suma = 0;
-            let vecinos = 0;
+            for (const [dx, dy] of vecinos) {
 
-            for (let dy = -1; dy <= 1; dy++) {
+                const nx = x + dx;
+                const ny = y + dy;
 
-                for (let dx = -1; dx <= 1; dx++) {
+                if (
+                    nx < 0 ||
+                    ny < 0 ||
+                    nx >= ancho ||
+                    ny >= alto
+                ) {
+                    continue;
+                }
 
-                    if (dx === 0 && dy === 0) {
-                        continue;
-                    }
+                const diferencia = altura - mapa[ny][nx];
 
-                    const nx = x + dx;
-                    const ny = y + dy;
+                if (diferencia > talud) {
 
-                    if (
-                        nx < 0 ||
-                        ny < 0 ||
-                        nx >= ancho ||
-                        ny >= alto
-                    ) {
-                        continue;
-                    }
+                    const transporte =
+                        (diferencia - talud) *
+                        intensidad *
+                        0.5;
 
-                    suma += mapa[ny][nx].elevacion;
-                    vecinos++;
+                    nuevo[y][x] -= transporte;
+                    nuevo[ny][nx] += transporte;
 
                 }
 
             }
 
-            const mediaVecinos =
-                vecinos > 0
-                    ? suma / vecinos
-                    : celda.elevacion;
-
-            const nuevaElevacion =
-                celda.elevacion +
-                (mediaVecinos - celda.elevacion) * intensidad;
-
-            fila.push({
-
-                ...celda,
-
-                elevacion: limitar(nuevaElevacion)
-
-            });
-
         }
-
-        nuevoMapa.push(fila);
 
     }
 
-    return nuevoMapa;
+    return nuevo;
 
 }
 
 /**
- * Limita un valor al rango 0–1.
+ * Copia una matriz bidimensional.
  *
- * @param {number} valor
- *
- * @returns {number}
+ * @param {number[][]} mapa
+ * @returns {number[][]}
  */
-function limitar(valor) {
+function copiarMapa(mapa) {
 
-    if (valor < 0) {
-        return 0;
-    }
-
-    if (valor > 1) {
-        return 1;
-    }
-
-    return valor;
+    return mapa.map(fila => [...fila]);
 
 }
