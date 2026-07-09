@@ -2,43 +2,42 @@
 ==========================================================
 Proyecto : Fantasy Map Generator
 Archivo  : suavizarCostas.js
-Ruta     : frontend/js/mapa/terreno/costas/suavizarCostas.js
+Ruta     : frontend/js/mapa/terreno/costas/
 Autor    : OpenAI + Asmodeus
 Licencia : MIT
+==========================================================
 
-Descripción:
-Suaviza las transiciones entre tierra y agua.
+Suaviza el mapa de costas eliminando pequeñas
+irregularidades producidas por la resolución
+de la cuadrícula.
 
-Este módulo reduce irregularidades producidas por la
-clasificación inicial de costas, generando perfiles más
-naturales.
-
-No modifica el nivel del mar.
+No modifica el mapa de elevación.
 
 ==========================================================
 */
 
 /**
- * Suaviza las costas.
+ * Suaviza un mapa de costas.
  *
- * @param {Array<Array<Object>>} mapa
- * @param {number} iteraciones
- *
- * @returns {Array<Array<Object>>}
+ * @param {boolean[][]} mapaCostas
+ * @param {Object} opciones
+ * @returns {boolean[][]}
  */
-export function suavizarCostas(
-    mapa,
-    iteraciones = 1
-) {
+export function suavizarCostas(mapaCostas, opciones = {}) {
 
-    if (!Array.isArray(mapa) || mapa.length === 0) {
-        return mapa;
+    if (!Array.isArray(mapaCostas) || mapaCostas.length === 0) {
+        throw new Error("El mapa de costas no es válido.");
     }
 
-    let resultado = mapa;
+    const {
+        pasadas = 1,
+        vecinosMinimos = 3
+    } = opciones;
 
-    for (let i = 0; i < iteraciones; i++) {
-        resultado = aplicarSuavizado(resultado);
+    let resultado = copiarMapa(mapaCostas);
+
+    for (let i = 0; i < pasadas; i++) {
+        resultado = suavizarPaso(resultado, vecinosMinimos);
     }
 
     return resultado;
@@ -46,86 +45,83 @@ export function suavizarCostas(
 }
 
 /**
- * Aplica una iteración de suavizado.
+ * Ejecuta una pasada de suavizado.
  *
- * @param {Array<Array<Object>>} mapa
- *
- * @returns {Array<Array<Object>>}
+ * @param {boolean[][]} mapa
+ * @param {number} vecinosMinimos
+ * @returns {boolean[][]}
  */
-function aplicarSuavizado(mapa) {
+function suavizarPaso(mapa, vecinosMinimos) {
 
     const alto = mapa.length;
     const ancho = mapa[0].length;
 
-    const nuevoMapa = [];
+    const nuevoMapa = copiarMapa(mapa);
+
+    const vecinos = [
+        [-1, -1], [0, -1], [1, -1],
+        [-1,  0],          [1,  0],
+        [-1,  1], [0,  1], [1,  1]
+    ];
 
     for (let y = 0; y < alto; y++) {
 
-        const fila = [];
-
         for (let x = 0; x < ancho; x++) {
 
-            const celda = { ...mapa[y][x] };
+            let total = 0;
 
-            let vecinosCosta = 0;
-            let vecinos = 0;
+            for (const [dx, dy] of vecinos) {
 
-            for (let dy = -1; dy <= 1; dy++) {
+                const nx = x + dx;
+                const ny = y + dy;
 
-                for (let dx = -1; dx <= 1; dx++) {
+                if (
+                    nx < 0 ||
+                    ny < 0 ||
+                    nx >= ancho ||
+                    ny >= alto
+                ) {
+                    continue;
+                }
 
-                    if (dx === 0 && dy === 0) {
-                        continue;
-                    }
-
-                    const nx = x + dx;
-                    const ny = y + dy;
-
-                    if (
-                        nx < 0 ||
-                        ny < 0 ||
-                        nx >= ancho ||
-                        ny >= alto
-                    ) {
-                        continue;
-                    }
-
-                    vecinos++;
-
-                    if (mapa[ny][nx].esCosta) {
-                        vecinosCosta++;
-                    }
-
+                if (mapa[ny][nx]) {
+                    total++;
                 }
 
             }
 
-            /*
-             * Elimina pequeñas irregularidades.
-             */
+            if (mapa[y][x]) {
 
-            if (
-                celda.esCosta &&
-                vecinosCosta <= 1
-            ) {
-                celda.esCosta = false;
+                // Elimina pequeñas puntas aisladas.
+                if (total < vecinosMinimos) {
+                    nuevoMapa[y][x] = false;
+                }
+
+            } else {
+
+                // Rellena pequeños huecos.
+                if (total > 6) {
+                    nuevoMapa[y][x] = true;
+                }
+
             }
-
-            if (
-                !celda.esCosta &&
-                vecinosCosta >= 5
-            ) {
-                celda.esCosta = true;
-            }
-
-            fila.push(celda);
 
         }
-
-        nuevoMapa.push(fila);
 
     }
 
     return nuevoMapa;
+
+}
+
+/**
+ * Copia una matriz bidimensional.
+ *
+ * @param {boolean[][]} mapa
+ * @returns {boolean[][]}
+ */
+function copiarMapa(mapa) {
+
+    return mapa.map(fila => [...fila]);
 
 }
