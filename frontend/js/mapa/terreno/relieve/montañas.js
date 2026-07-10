@@ -9,11 +9,14 @@ Licencia : MIT
 
 Generador de montañas.
 
-Añade macizos montañosos sobre la elevación
-existente utilizando dos capas de ruido:
+Versión 2.2.1B
 
-- Ruido de macizos (baja frecuencia)
-- Ruido de detalle (alta frecuencia)
+Mejoras respecto a la versión A:
+
+- Macizos orientados mediante rotación.
+- Elongación configurable.
+- Centro del mapa como origen de la transformación.
+- Mejor comportamiento en mapas grandes.
 
 No modifica el mapa original.
 
@@ -62,11 +65,19 @@ export function generarMontanas(
 
         persistencia = 0.5,
 
-        lacunaridad = 2.0
+        lacunaridad = 2.0,
+
+        // NUEVO (2.2.1B)
+
+        direccion = 45,
+
+        elongacion = 2.0
 
     } = opciones;
 
+    //------------------------------------------------------
     // Generador de detalle
+    //------------------------------------------------------
 
     const ruidoDetalle = crearRuido({
 
@@ -86,7 +97,9 @@ export function generarMontanas(
 
     });
 
+    //------------------------------------------------------
     // Generador de macizos
+    //------------------------------------------------------
 
     const ruidoMacizos = crearRuido({
 
@@ -106,6 +119,8 @@ export function generarMontanas(
 
     });
 
+    //------------------------------------------------------
+
     const alto = mapaElevacion.length;
     const ancho = mapaElevacion[0].length;
 
@@ -113,6 +128,20 @@ export function generarMontanas(
 
     const rangoDetalle = 1 - umbral;
     const rangoMacizos = 1 - umbralMacizos;
+
+    //------------------------------------------------------
+    // Transformación para orientar macizos
+    //------------------------------------------------------
+
+    const radianes = direccion * Math.PI / 180;
+
+    const cos = Math.cos(radianes);
+    const sin = Math.sin(radianes);
+
+    const centroX = ancho / 2;
+    const centroY = alto / 2;
+
+    //------------------------------------------------------
 
     for (let y = 0; y < alto; y++) {
 
@@ -126,27 +155,67 @@ export function generarMontanas(
                 continue;
             }
 
-            const macizo = ruidoMacizos.obtener(x, y);
+            //--------------------------------------------------
+            // Coordenadas centradas
+            //--------------------------------------------------
+
+            const px = x - centroX;
+            const py = y - centroY;
+
+            //--------------------------------------------------
+            // Rotación
+            //--------------------------------------------------
+
+            const rx =
+                (px * cos - py * sin) * elongacion;
+
+            const ry =
+                (px * sin + py * cos);
+
+            //--------------------------------------------------
+            // Volver al sistema del mapa
+            //--------------------------------------------------
+
+            const ruidoX = rx + centroX;
+            const ruidoY = ry + centroY;
+
+            //--------------------------------------------------
+
+            const macizo =
+                ruidoMacizos.obtener(
+                    ruidoX,
+                    ruidoY
+                );
 
             if (macizo < umbralMacizos) {
                 continue;
             }
 
-            const detalle = ruidoDetalle.obtener(x, y);
+            const detalle =
+                ruidoDetalle.obtener(
+                    x,
+                    y
+                );
 
             if (detalle < umbral) {
                 continue;
             }
 
             const factorMacizo =
-                (macizo - umbralMacizos) / rangoMacizos;
+                (macizo - umbralMacizos) /
+                rangoMacizos;
 
             const factorDetalle =
-                (detalle - umbral) / rangoDetalle;
+                (detalle - umbral) /
+                rangoDetalle;
 
-            const factor = factorMacizo * factorDetalle;
+            const factor =
+                factorMacizo *
+                factorDetalle;
 
-            resultado[y][x] += factor * intensidad;
+            resultado[y][x] +=
+                factor *
+                intensidad;
 
             if (resultado[y][x] > 1) {
                 resultado[y][x] = 1;
