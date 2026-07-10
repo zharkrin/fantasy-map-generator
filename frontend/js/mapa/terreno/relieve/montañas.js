@@ -10,7 +10,10 @@ Licencia : MIT
 Generador de montañas.
 
 Añade macizos montañosos sobre la elevación
-existente utilizando ruido procedural.
+existente utilizando dos capas de ruido:
+
+- Ruido de macizos (baja frecuencia)
+- Ruido de detalle (alta frecuencia)
 
 No modifica el mapa original.
 
@@ -41,11 +44,17 @@ export function generarMontanas(
 
         nivelMar = 0.50,
 
+        // Ruido de detalle
         frecuencia = 0.0015,
+
+        // Ruido de macizos
+        frecuenciaMacizos = 0.00045,
 
         intensidad = 0.35,
 
         umbral = 0.72,
+
+        umbralMacizos = 0.55,
 
         usarFBM = true,
 
@@ -57,7 +66,9 @@ export function generarMontanas(
 
     } = opciones;
 
-    const ruido = crearRuido({
+    // Generador de detalle
+
+    const ruidoDetalle = crearRuido({
 
         motor: "simplex",
 
@@ -75,10 +86,33 @@ export function generarMontanas(
 
     });
 
+    // Generador de macizos
+
+    const ruidoMacizos = crearRuido({
+
+        motor: "simplex",
+
+        semilla: semilla + 2000,
+
+        frecuencia: frecuenciaMacizos,
+
+        usarFBM: true,
+
+        octavas: 3,
+
+        persistencia: 0.5,
+
+        lacunaridad: 2.0
+
+    });
+
     const alto = mapaElevacion.length;
     const ancho = mapaElevacion[0].length;
 
     const resultado = mapaElevacion.map(fila => [...fila]);
+
+    const rangoDetalle = 1 - umbral;
+    const rangoMacizos = 1 - umbralMacizos;
 
     for (let y = 0; y < alto; y++) {
 
@@ -87,22 +121,33 @@ export function generarMontanas(
             const altura = resultado[y][x];
 
             // Nunca generar montañas bajo el mar.
+
             if (altura <= nivelMar) {
                 continue;
             }
 
-            const valorRuido = ruido.obtener(x, y);
+            const macizo = ruidoMacizos.obtener(x, y);
 
-            if (valorRuido < umbral) {
+            if (macizo < umbralMacizos) {
                 continue;
             }
 
-            // Intensidad progresiva.
-            const factor = (valorRuido - umbral) / (1 - umbral);
+            const detalle = ruidoDetalle.obtener(x, y);
+
+            if (detalle < umbral) {
+                continue;
+            }
+
+            const factorMacizo =
+                (macizo - umbralMacizos) / rangoMacizos;
+
+            const factorDetalle =
+                (detalle - umbral) / rangoDetalle;
+
+            const factor = factorMacizo * factorDetalle;
 
             resultado[y][x] += factor * intensidad;
 
-            // Limitar a 1.0
             if (resultado[y][x] > 1) {
                 resultado[y][x] = 1;
             }
