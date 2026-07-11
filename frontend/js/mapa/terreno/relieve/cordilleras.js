@@ -51,7 +51,7 @@ export function generarCordilleras(
         intensidad = 0.18,
 
         frecuencia = 0.002,
-                usarFBM = true,
+              usarFBM = true,
 
         octavas = 4,
 
@@ -117,8 +117,8 @@ export function generarCordilleras(
     const ancho = mapaElevacion[0].length;
 
     const resultado =
-        mapaElevacion.map(fila => [...fila]); 
-            //------------------------------------------------------
+        mapaElevacion.map(fila => [...fila]);
+        //------------------------------------------------------
     // Si no existen suficientes picos no se generan
     // cordilleras.
     //------------------------------------------------------
@@ -262,48 +262,146 @@ function crearRutaNatural(
     opciones
 
 ) {
+        const {
+
+        nivelMar,
+        costeAltura,
+        costeDistancia,
+        costeAgua
+
+    } = opciones;
+
+    const camino = [];
+
+    let x = origen.x;
+    let y = origen.y;
+
     const alto = mapa.length;
     const ancho = mapa[0].length;
 
+    const maxPasos = ancho * alto;
+
+    for (let paso = 0; paso < maxPasos; paso++) {
+
+        camino.push({ x, y });
+
+        if (x === destino.x && y === destino.y) {
+            break;
+        }
+
+        let mejorX = x;
+        let mejorY = y;
+        let mejorCoste = Number.MAX_VALUE;
+
+        for (let dy = -1; dy <= 1; dy++) {
+
+            for (let dx = -1; dx <= 1; dx++) {
+
+                if (dx === 0 && dy === 0) {
+                    continue;
+                }
+
+                const nx = x + dx;
+                const ny = y + dy;
+
+                if (
+                    nx < 0 ||
+                    ny < 0 ||
+                    nx >= ancho ||
+                    ny >= alto
+                ) {
+                    continue;
+                }
+
+                const altura = mapa[ny][nx];
+
+                let coste = costeDistancia;
+
+                if (altura <= nivelMar) {
+                    coste += costeAgua;
+                } else {
+                    coste += (1 - altura) * costeAltura;
+                }
+
+                coste +=
+                    Math.hypot(
+                        destino.x - nx,
+                        destino.y - ny
+                    ) * 0.01;
+
+                if (coste < mejorCoste) {
+
+                    mejorCoste = coste;
+                    mejorX = nx;
+                    mejorY = ny;
+
+                }
+
+            }
+
+        }
+
+        if (mejorX === x && mejorY === y) {
+            break;
+        }
+
+        x = mejorX;
+        y = mejorY;
+
+    }
+
+    return camino;
+
+}
+/**
+ * Aumenta la elevación alrededor de un punto
+ * perteneciente al eje de una cordillera.
+ */
+function elevarZonaCordillera(
+
+    mapa,
+
+    x,
+
+    y,
+
+    anchoBase,
+
+    anchoMaximo,
+
+    intensidad,
+
+    ruido
+
+) {
+
+    const alto = mapa.length;
+    const ancho = mapa[0].length;
 
     //--------------------------------------------------
-    // Radio variable del relieve
+    // Radio variable según el ruido
     //--------------------------------------------------
 
-    const variacion =
-        ruido.obtener(x, y);
+    const variacion = ruido.obtener(x, y);
 
-
-    const radio =
-        Math.max(
-            anchoBase,
-            anchoBase +
-            Math.floor(
-                variacion * anchoMaximo
-            )
-        );
-
+    const radio = Math.max(
+        anchoBase,
+        anchoBase +
+        Math.floor(
+            variacion * (anchoMaximo - anchoBase)
+        )
+    );
 
     //--------------------------------------------------
     // Aplicar elevación alrededor del eje
     //--------------------------------------------------
 
-    for (
-        let dy = -radio;
-        dy <= radio;
-        dy++
-    ) {
+    for (let dy = -radio; dy <= radio; dy++) {
 
-        for (
-            let dx = -radio;
-            dx <= radio;
-            dx++
-        ) {
-
+        for (let dx = -radio; dx <= radio; dx++) {
 
             const nx = x + dx;
             const ny = y + dy;
-
 
             if (
                 nx < 0 ||
@@ -314,47 +412,24 @@ function crearRutaNatural(
                 continue;
             }
 
-
-            const distancia =
-                Math.sqrt(
-                    dx * dx +
-                    dy * dy
-                );
-
+            const distancia = Math.hypot(dx, dy);
 
             if (distancia > radio) {
                 continue;
             }
 
+            const factor = 1 - (distancia / radio);
 
-            //--------------------------------------------------
-            // Centro más elevado, bordes suaves
-            //--------------------------------------------------
-
-            const factor =
-                1 -
-                (
-                    distancia /
-                    radio
-                );
-
-
-            mapa[ny][nx] +=
-                factor *
-                intensidad;
-
-
-            if (mapa[ny][nx] > 1) {
-
-                mapa[ny][nx] = 1;
-
-            }
+            mapa[ny][nx] = Math.min(
+                1,
+                mapa[ny][nx] + (factor * intensidad)
+            );
 
         }
 
     }
 
-} 
+}
 /**
  * Calcula la distancia entre dos puntos.
  *
