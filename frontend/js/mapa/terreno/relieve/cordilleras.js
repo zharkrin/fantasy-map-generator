@@ -59,15 +59,35 @@ export function generarCordilleras(
 
         lacunaridad = 2.0,
 
+        //--------------------------------------------------
+        // Generación de cordilleras
+        //--------------------------------------------------
+
         cantidadCordilleras = 8,
 
         longitudMinima = 40,
 
         longitudMaxima = 180,
 
+        //--------------------------------------------------
+        // Geometría
+        //--------------------------------------------------
+
         anchoBase = 3,
 
-        anchoMaximo = 8
+        anchoMaximo = 8,
+
+        //--------------------------------------------------
+        // Sistema de rutas (2.2.2A)
+        //--------------------------------------------------
+
+        usarRutaNatural = true,
+
+        costeAltura = 2.0,
+
+        costeDistancia = 1.0,
+
+        costeAgua = Number.MAX_SAFE_INTEGER
 
     } = opciones;
 
@@ -97,32 +117,8 @@ export function generarCordilleras(
     const ancho = mapaElevacion[0].length;
 
     const resultado =
-        mapaElevacion.map(fila => [...fila]);
-
-    //------------------------------------------------------
-    // Buscar todos los posibles picos
-    //------------------------------------------------------
-
-    const picos = [];
-
-    for (let y = 1; y < alto - 1; y++) {
-
-        for (let x = 1; x < ancho - 1; x++) {
-
-            if (resultado[y][x] >= umbralMontana) {
-
-                picos.push({
-                    x,
-                    y,
-                    altura: resultado[y][x]
-                });
-
-            }
-
-        }
-
-    }
-        //------------------------------------------------------
+        mapaElevacion.map(fila => [...fila]); 
+            //------------------------------------------------------
     // Si no existen suficientes picos no se generan
     // cordilleras.
     //------------------------------------------------------
@@ -158,45 +154,66 @@ export function generarCordilleras(
         const origen =
             picos[Math.floor(random() * picos.length)];
 
-        let destino =
-            picos[Math.floor(random() * picos.length)];
+        let destino = null;
 
         let intentos = 0;
 
-        while (
-            origen === destino &&
-            intentos < 20
-        ) {
+        while (intentos < 50) {
 
-            destino =
+            const candidato =
                 picos[Math.floor(random() * picos.length)];
+
+            if (candidato === origen) {
+                intentos++;
+                continue;
+            }
+
+            const dx = candidato.x - origen.x;
+            const dy = candidato.y - origen.y;
+
+            const distancia =
+                Math.sqrt(dx * dx + dy * dy);
+
+            if (
+                distancia >= longitudMinima &&
+                distancia <= longitudMaxima
+            ) {
+                destino = candidato;
+                break;
+            }
 
             intentos++;
 
         }
 
-        if (origen === destino) {
+        if (destino === null) {
             continue;
         }
                 //--------------------------------------------------
-        // Crear trayectoria entre los dos macizos
+        // Crear trayectoria natural entre los dos macizos
         //--------------------------------------------------
 
-        const camino = crearTrayectoria(
-
-            origen.x,
-            origen.y,
-
-            destino.x,
-            destino.y,
-
-            ancho,
-            alto,
-
-            resultado
-
-        );
-
+        const camino = usarRutaNatural
+            ? crearRutaNatural(
+                origen,
+                destino,
+                resultado,
+                {
+                    nivelMar,
+                    costeAltura,
+                    costeDistancia,
+                    costeAgua
+                }
+            )
+            : crearTrayectoria(
+                origen.x,
+                origen.y,
+                destino.x,
+                destino.y,
+                ancho,
+                alto,
+                resultado
+            );
 
         //--------------------------------------------------
         // Aplicar elevación a la trayectoria
@@ -226,152 +243,23 @@ export function generarCordilleras(
 
     }
 
-
     return resultado;
 
 }
 
-
 /**
- * Crea una trayectoria irregular entre dos puntos.
- *
- * No utiliza una línea recta perfecta para evitar
- * cordilleras artificiales.
- *
- * @returns {Array}
+ * Genera una ruta natural favoreciendo
+ * zonas elevadas del terreno.
  */
-function crearTrayectoria(
+function crearRutaNatural(
 
-    x1,
-    y1,
+    origen,
 
-    x2,
-    y2,
-
-    ancho,
-    alto,
-
-    mapa
-
-) {
-
-    const camino = [];
-
-    let x = x1;
-    let y = y1;
-
-    const distancia =
-        Math.max(
-            Math.abs(x2 - x1),
-            Math.abs(y2 - y1)
-        );
-
-    const pasos =
-        Math.max(
-            distancia,
-            1
-        );
-            //--------------------------------------------------
-    // Avance progresivo hacia el destino
-    //--------------------------------------------------
-
-    for (let i = 0; i <= pasos; i++) {
-
-        const progreso =
-            i / pasos;
-
-
-        let nx =
-            Math.round(
-                x1 +
-                (x2 - x1) * progreso
-            );
-
-
-        let ny =
-            Math.round(
-                y1 +
-                (y2 - y1) * progreso
-            );
-
-
-        //--------------------------------------------------
-        // Desviación natural del eje
-        //--------------------------------------------------
-
-        if (i !== 0 && i !== pasos) {
-
-            const desviacionX =
-                Math.sin(i * 0.8) * 2;
-
-            const desviacionY =
-                Math.cos(i * 0.6) * 2;
-
-
-            nx += Math.round(desviacionX);
-
-            ny += Math.round(desviacionY);
-
-        }
-
-
-        //--------------------------------------------------
-        // Mantener dentro del mapa
-        //--------------------------------------------------
-
-        nx = Math.max(
-            0,
-            Math.min(
-                ancho - 1,
-                nx
-            )
-        );
-
-
-        ny = Math.max(
-            0,
-            Math.min(
-                alto - 1,
-                ny
-            )
-        );
-
-
-        camino.push({
-
-            x: nx,
-
-            y: ny
-
-        });
-
-    }
-
-
-    return camino;
-
-}
-
-
-/**
- * Aumenta la elevación alrededor de un punto
- * de cordillera.
- */
-function elevarZonaCordillera(
+    destino,
 
     mapa,
 
-    x,
-
-    y,
-
-    anchoBase,
-
-    anchoMaximo,
-
-    intensidad,
-
-    ruido
+    opciones
 
 ) {
     const alto = mapa.length;
@@ -466,7 +354,7 @@ function elevarZonaCordillera(
 
     }
 
-}
+} 
 /**
  * Calcula la distancia entre dos puntos.
  *
@@ -586,4 +474,3 @@ Responsabilidad:
 
 ==========================================================
 */
-        
