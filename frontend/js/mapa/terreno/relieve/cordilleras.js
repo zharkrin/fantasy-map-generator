@@ -501,3 +501,364 @@ function crearRutaNatural(
     return camino;
 
 } 
+/**
+ * Crea una trayectoria simple entre dos puntos.
+ *
+ * Utilizada como alternativa cuando no se usa
+ * la búsqueda natural.
+ */
+function crearTrayectoria(
+
+    x1,
+
+    y1,
+
+    x2,
+
+    y2,
+
+    ancho,
+
+    alto,
+
+    mapa
+
+) {
+
+    const camino = [];
+
+    const pasos = Math.max(
+
+        Math.abs(x2 - x1),
+
+        Math.abs(y2 - y1)
+
+    );
+
+
+    for (let i = 0; i <= pasos; i++) {
+
+        const progreso =
+            pasos === 0
+                ? 0
+                : i / pasos;
+
+
+        let x =
+            Math.round(
+                x1 +
+                (x2 - x1) * progreso
+            );
+
+
+        let y =
+            Math.round(
+                y1 +
+                (y2 - y1) * progreso
+            );
+
+
+        x = Math.max(
+            0,
+            Math.min(
+                ancho - 1,
+                x
+            )
+        );
+
+
+        y = Math.max(
+            0,
+            Math.min(
+                alto - 1,
+                y
+            )
+        );
+
+
+        camino.push({
+
+            x,
+
+            y
+
+        });
+
+    }
+
+
+    return camino;
+
+}
+
+
+/**
+ * Busca el punto más elevado cercano.
+ */
+function buscarPuntoAlto(
+
+    mapa,
+
+    x,
+
+    y,
+
+    radio
+
+) {
+
+    const alto = mapa.length;
+
+    const ancho = mapa[0].length;
+
+    let mejor = null;
+
+
+    for (
+
+        let dy = -radio;
+
+        dy <= radio;
+
+        dy++
+
+    ) {
+
+        for (
+
+            let dx = -radio;
+
+            dx <= radio;
+
+            dx++
+
+        ) {
+
+            const nx = x + dx;
+
+            const ny = y + dy;
+
+
+            if (
+
+                nx < 0 ||
+
+                ny < 0 ||
+
+                nx >= ancho ||
+
+                ny >= alto
+
+            ) {
+
+                continue;
+
+            }
+
+
+            if (
+
+                mejor === null ||
+
+                mapa[ny][nx] > mejor.altura
+
+            ) {
+
+                mejor = {
+
+                    x: nx,
+
+                    y: ny,
+
+                    altura: mapa[ny][nx]
+
+                };
+
+            }
+
+        }
+
+    }
+
+
+    return mejor;
+
+}
+/**
+ * Calcula la distancia entre dos puntos.
+ *
+ * Utilidad para validar longitud de
+ * cordilleras y conexiones futuras.
+ */
+function distanciaEntrePuntos(
+
+    x1,
+
+    y1,
+
+    x2,
+
+    y2
+
+) {
+
+    const dx = x2 - x1;
+
+    const dy = y2 - y1;
+
+
+    return Math.sqrt(
+
+        dx * dx +
+
+        dy * dy
+
+    );
+
+}
+
+
+/**
+ * Aumenta la elevación alrededor del eje
+ * de una cordillera.
+ *
+ * La intensidad disminuye hacia los bordes.
+ */
+function elevarZonaCordillera(
+
+    mapa,
+
+    x,
+
+    y,
+
+    anchoBase,
+
+    anchoMaximo,
+
+    intensidad,
+
+    ruido
+
+) {
+
+    const alto = mapa.length;
+
+    const ancho = mapa[0].length;
+
+
+    const variacion =
+        ruido.obtener(x, y);
+
+
+    const radio = Math.max(
+
+        anchoBase,
+
+        anchoBase +
+
+        Math.floor(
+
+            variacion *
+
+            (anchoMaximo - anchoBase)
+
+        )
+
+    );
+
+
+    for (
+
+        let dy = -radio;
+
+        dy <= radio;
+
+        dy++
+
+    ) {
+
+        for (
+
+            let dx = -radio;
+
+            dx <= radio;
+
+            dx++
+
+        ) {
+
+            const nx = x + dx;
+
+            const ny = y + dy;
+
+
+            if (
+
+                nx < 0 ||
+
+                ny < 0 ||
+
+                nx >= ancho ||
+
+                ny >= alto
+
+            ) {
+
+                continue;
+
+            }
+
+
+            const distancia =
+                Math.sqrt(
+
+                    dx * dx +
+
+                    dy * dy
+
+                );
+
+
+            if (
+
+                distancia > radio
+
+            ) {
+
+                continue;
+
+            }
+
+
+            const factor =
+                1 -
+
+                (
+                    distancia /
+
+                    radio
+
+                );
+
+
+            mapa[ny][nx] = Math.min(
+
+                1,
+
+                mapa[ny][nx] +
+
+                (
+                    factor *
+
+                    intensidad
+
+                )
+
+            );
+
+        }
+
+    }
+
+}
