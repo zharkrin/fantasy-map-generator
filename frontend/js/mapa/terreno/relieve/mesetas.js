@@ -6,24 +6,25 @@ Ruta     : frontend/js/mapa/terreno/relieve/
 Licencia : MIT
 ==========================================================
 
-Generador de mesetas.
-
-Genera regiones terrestres elevadas con una cima
-relativamente plana, bordes irregulares y altura variable.
-Los tipos disponibles son: clasica, volcanica, altiplano,
-mesa y tepuy.
-
+Generador de mesetas con borde irregular y altura variable.
 No modifica el mapa recibido.
 ==========================================================
 */
 
+import { crearRuido } from "../ruido/crearRuido.js";
+
 const TIPOS_MESETA = new Set([
-    "clasica",
-    "volcanica",
-    "altiplano",
-    "mesa",
-    "tepuy"
+    "clasica", "volcanica", "altiplano", "mesa", "tepuy"
 ]);
+
+/** Ajuste de elevación según el tipo geológico. */
+const AJUSTE_TIPO = Object.freeze({
+    clasica: 0,
+    volcanica: 0.08,
+    altiplano: -0.03,
+    mesa: 0.02,
+    tepuy: 0.12
+});
 
 /**
  * Genera mesetas sobre un mapa de elevación normalizado.
@@ -46,6 +47,7 @@ export function generarMesetas(mapaElevacion, opciones = {}) {
         radioMinimo = 10,
         radioMaximo = 32,
         separacionMinima = 20,
+        permitirSolapamiento = false,
         suavidadBorde = 0.30,
         variacionBorde = 4,
         variacionAltura = 0.05,
@@ -61,6 +63,7 @@ export function generarMesetas(mapaElevacion, opciones = {}) {
         radioMinimo,
         radioMaximo,
         separacionMinima,
+        permitirSolapamiento,
         suavidadBorde,
         variacionBorde,
         variacionAltura,
@@ -79,22 +82,29 @@ export function generarMesetas(mapaElevacion, opciones = {}) {
     }
 
     const random = crearGeneradorPseudoaleatorio(semilla);
-    const ruido = crearRuidoMesetas(semilla + 6000, frecuenciaRuido);
+    const ruido = crearRuido({
+        motor: "simplex",
+        semilla: semilla + 6000,
+        frecuencia: frecuenciaRuido,
+        usarFBM: true,
+        octavas: 3,
+        persistencia: 0.5,
+        lacunaridad: 2.0
+    });
     const centros = seleccionarCentros(
         candidatos,
         cantidadMesetas,
         separacionMinima,
+        permitirSolapamiento,
         random
     );
 
     for (const centro of centros) {
-        const radio = enteroAleatorio(random, radioMinimo, radioMaximo);
-
         aplicarMeseta(
             resultado,
             centro.x,
             centro.y,
-            radio,
+            enteroAleatorio(random, radioMinimo, radioMaximo),
             tipoMeseta,
             alturaMeseta,
             nivelMar,
@@ -109,11 +119,7 @@ export function generarMesetas(mapaElevacion, opciones = {}) {
 
 }
 
-/**
- * Comprueba que el mapa sea una matriz rectangular de números normalizados.
- *
- * @param {number[][]} mapaElevacion
- */
+/** @param {number[][]} mapaElevacion */
 function validarMapaElevacion(mapaElevacion) {
 
     if (!Array.isArray(mapaElevacion) || mapaElevacion.length === 0) {
@@ -133,20 +139,14 @@ function validarMapaElevacion(mapaElevacion) {
 
         for (const altura of fila) {
             if (!Number.isFinite(altura) || altura < 0 || altura > 1) {
-                throw new Error(
-                    "La elevación de cada celda debe estar entre 0 y 1."
-                );
+                throw new Error("Cada elevación debe estar entre 0 y 1.");
             }
         }
     }
 
 }
 
-/**
- * Valida las opciones públicas del generador.
- *
- * @param {Object} opciones
- */
+/** @param {Object} opciones */
 function validarOpciones(opciones) {
 
     const valoresNormalizados = [
@@ -184,6 +184,10 @@ function validarOpciones(opciones) {
         throw new Error("separacionMinima debe ser un número igual o mayor que cero.");
     }
 
+    if (typeof opciones.permitirSolapamiento !== "boolean") {
+        throw new Error("permitirSolapamiento debe ser verdadero o falso.");
+    }
+
     if (!Number.isFinite(opciones.variacionBorde) || opciones.variacionBorde < 0) {
         throw new Error("variacionBorde debe ser un número igual o mayor que cero.");
     }
@@ -194,14 +198,7 @@ function validarOpciones(opciones) {
 
 }
 
-/**
- * Obtiene celdas terrestres aptas para situar el centro de una meseta.
- *
- * @param {number[][]} mapaElevacion
- * @param {number} nivelMar
- * @param {number} alturaMinima
- * @returns {{x: number, y: number}[]}
- */
+/** @returns {{x: number, y: number}[]} */
 function obtenerCandidatos(mapaElevacion, nivelMar, alturaMinima) {
 
     const candidatos = [];
@@ -219,19 +216,12 @@ function obtenerCandidatos(mapaElevacion, nivelMar, alturaMinima) {
 
 }
 
-/**
- * Selecciona centros separados para reducir solapamientos entre mesetas.
- *
- * @param {{x: number, y: number}[]} candidatos
- * @param {number} cantidadMesetas
- * @param {number} separacionMinima
- * @param {Function} random
- * @returns {{x: number, y: number}[]}
- */
+/** @returns {{x: number, y: number}[]} */
 function seleccionarCentros(
     candidatos,
     cantidadMesetas,
     separacionMinima,
+    permitirSolapamiento,
     random
 ) {
 
@@ -242,8 +232,7 @@ function seleccionarCentros(
     while (disponibles.length > 0 && centros.length < cantidadMesetas) {
         const indice = enteroAleatorio(random, 0, disponibles.length - 1);
         const candidato = disponibles.splice(indice, 1)[0];
-
-        const estaSeparado = centros.every((centro) => {
+        const estaSeparado = permitirSolapamiento || centros.every((centro) => {
             const dx = candidato.x - centro.x;
             const dy = candidato.y - centro.y;
 
@@ -260,19 +249,7 @@ function seleccionarCentros(
 }
 
 /**
- * Aplana una región con borde irregular y una altura objetivo dependiente del tipo.
- *
- * @param {number[][]} mapa
- * @param {number} centroX
- * @param {number} centroY
- * @param {number} radio
- * @param {string} tipoMeseta
- * @param {number} alturaMeseta
- * @param {number} nivelMar
- * @param {number} suavidadBorde
- * @param {number} variacionBorde
- * @param {number} variacionAltura
- * @param {{obtener: Function}} ruido
+ * Aplana una región con borde irregular y altura específica para su tipo.
  */
 function aplicarMeseta(
     mapa,
@@ -291,9 +268,8 @@ function aplicarMeseta(
     const alto = mapa.length;
     const ancho = mapa[0].length;
     const radioConMargen = Math.ceil(radio + variacionBorde);
-    const ruidoCentro = ruido.obtener(centroX, centroY);
     const alturaBase = limitar(
-        alturaMeseta + (ruidoCentro * variacionAltura)
+        alturaMeseta + (ruido.obtener(centroX, centroY) * variacionAltura)
     );
 
     for (let y = Math.max(0, centroY - radioConMargen); y <= Math.min(alto - 1, centroY + radioConMargen); y++) {
@@ -302,9 +278,7 @@ function aplicarMeseta(
                 continue;
             }
 
-            const dx = x - centroX;
-            const dy = y - centroY;
-            const distancia = Math.hypot(dx, dy);
+            const distancia = Math.hypot(x - centroX, y - centroY);
             const radioLocal = Math.max(
                 1,
                 radio + (ruido.obtener(x, y) * variacionBorde)
@@ -320,7 +294,6 @@ function aplicarMeseta(
                 radioNucleo,
                 radioLocal
             );
-
             const alturaObjetivo = obtenerAlturaObjetivo(
                 tipoMeseta,
                 alturaBase,
@@ -335,44 +308,16 @@ function aplicarMeseta(
 
 }
 
-/**
- * Determina la altura de una meseta según su formación geológica.
- *
- * @param {string} tipoMeseta
- * @param {number} alturaMeseta
- * @param {number} alturaActual
- * @returns {number}
- */
+/** @returns {number} */
 function obtenerAlturaObjetivo(tipoMeseta, alturaMeseta, alturaActual) {
 
-    switch (tipoMeseta) {
-        case "volcanica":
-            return Math.max(alturaActual, alturaMeseta + 0.08);
+    const ajuste = AJUSTE_TIPO[tipoMeseta] ?? AJUSTE_TIPO.clasica;
 
-        case "altiplano":
-            return Math.max(alturaActual, alturaMeseta - 0.03);
-
-        case "mesa":
-            return Math.max(alturaActual, alturaMeseta + 0.02);
-
-        case "tepuy":
-            return Math.max(alturaActual, alturaMeseta + 0.12);
-
-        case "clasica":
-        default:
-            return Math.max(alturaActual, alturaMeseta);
-    }
+    return Math.max(alturaActual, alturaMeseta + ajuste);
 
 }
 
-/**
- * Devuelve una influencia total en el núcleo y una transición suave en el borde.
- *
- * @param {number} distancia
- * @param {number} radioNucleo
- * @param {number} radioLocal
- * @returns {number}
- */
+/** @returns {number} */
 function calcularInfluencia(distancia, radioNucleo, radioLocal) {
 
     if (distancia <= radioNucleo || radioNucleo >= radioLocal) {
@@ -385,89 +330,7 @@ function calcularInfluencia(distancia, radioNucleo, radioLocal) {
 
 }
 
-/**
- * Crea un ruido de valor suave y determinista con salida entre -1 y 1.
- *
- * @param {number} semilla
- * @param {number} frecuencia
- * @returns {{obtener: (x: number, y: number) => number}}
- */
-function crearRuidoMesetas(semilla, frecuencia) {
-
-    return {
-        obtener(x, y) {
-            const muestraX = x * frecuencia;
-            const muestraY = y * frecuencia;
-            const xBase = Math.floor(muestraX);
-            const yBase = Math.floor(muestraY);
-            const fraccionX = muestraX - xBase;
-            const fraccionY = muestraY - yBase;
-
-            const esquina00 = valorHash(xBase, yBase, semilla);
-            const esquina10 = valorHash(xBase + 1, yBase, semilla);
-            const esquina01 = valorHash(xBase, yBase + 1, semilla);
-            const esquina11 = valorHash(xBase + 1, yBase + 1, semilla);
-            const suaveX = suavizar(fraccionX);
-            const suaveY = suavizar(fraccionY);
-            const inferior = interpolar(esquina00, esquina10, suaveX);
-            const superior = interpolar(esquina01, esquina11, suaveX);
-
-            return interpolar(inferior, superior, suaveY);
-        }
-    };
-
-}
-
-/**
- * Obtiene un valor estable entre -1 y 1 para una coordenada entera.
- *
- * @param {number} x
- * @param {number} y
- * @param {number} semilla
- * @returns {number}
- */
-function valorHash(x, y, semilla) {
-
-    let valor = (x * 374761393) + (y * 668265263) + (semilla * 69069);
-
-    valor = Math.imul(valor ^ (valor >>> 13), 1274126177);
-
-    return (((valor ^ (valor >>> 16)) >>> 0) / 2147483647.5) - 1;
-
-}
-
-/**
- * Interpolación cúbica suave.
- *
- * @param {number} valor
- * @returns {number}
- */
-function suavizar(valor) {
-
-    return valor * valor * (3 - (2 * valor));
-
-}
-
-/**
- * Interpola dos valores.
- *
- * @param {number} inicio
- * @param {number} final
- * @param {number} progreso
- * @returns {number}
- */
-function interpolar(inicio, final, progreso) {
-
-    return inicio + ((final - inicio) * progreso);
-
-}
-
-/**
- * Crea un generador Mulberry32 determinista.
- *
- * @param {number} semilla
- * @returns {Function}
- */
+/** @returns {Function} */
 function crearGeneradorPseudoaleatorio(semilla) {
 
     let estado = Number(semilla) >>> 0;
@@ -485,26 +348,14 @@ function crearGeneradorPseudoaleatorio(semilla) {
 
 }
 
-/**
- * Devuelve un entero inclusivo a partir de un generador pseudoaleatorio.
- *
- * @param {Function} random
- * @param {number} minimo
- * @param {number} maximo
- * @returns {number}
- */
+/** @returns {number} */
 function enteroAleatorio(random, minimo, maximo) {
 
     return Math.floor(random() * ((maximo - minimo) + 1)) + minimo;
 
 }
 
-/**
- * Limita un valor al rango normalizado del mapa.
- *
- * @param {number} valor
- * @returns {number}
- */
+/** @returns {number} */
 function limitar(valor) {
 
     return Math.min(1, Math.max(0, valor));
